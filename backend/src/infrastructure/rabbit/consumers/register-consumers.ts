@@ -301,43 +301,53 @@ export async function registerConsumers(): Promise<void> {
     routingKey: "bisno.order.accepted",
     queue: "bisno.order.accepted.queue",
     onMessage: async (payload) => {
-      const lead = await Lead.findByPk(payload.leadId, {
-        include: [Bisno, Mixeiro],
-      });
+      try {
+        const lead = await Lead.findByPk(payload.leadId, {
+          include: [
+            { model: Mixeiro },
+            { model: Bisno, include: [Service, Zone] },
+          ],
+        });
 
-      if (!isDefined(lead)) {
-        return eventConsumerLogger.error({ payload }, "Lead not found");
+        if (!isDefined(lead)) {
+          return eventConsumerLogger.error({ payload }, "Lead not found");
+        }
+
+        await lead.bisno.update({ status: "done" });
+        await lead.update({ status: "accepted" });
+        await publisher.publish({
+          routingKey: "bisno.points.decrement",
+          payload: { mixeiroId: payload.mixeiroId },
+        });
+
+        await Promise.all([
+          sendTextMessageBisnoClosedToMixeiro(
+            lead.mixeiro.mobile,
+            EVOLUTION_INSTANCE_NAMES.mainInstance.name,
+            {
+              mixeiroName: lead.mixeiro.customName,
+              customerName: lead.bisno.customerName,
+              customerMobile: lead.bisno.customerMobile,
+              serviceName: lead.bisno.service.name,
+              zoneName: lead.bisno.zone.name,
+            },
+          ),
+          sendTextMessageBisnoClosedToClient(
+            lead.bisno.customerMobile,
+            EVOLUTION_INSTANCE_NAMES.mainInstance.name,
+            {
+              customerName: lead.bisno.customerName,
+              mixeiroName: lead.mixeiro.customName,
+              serviceName: lead.bisno.service.name,
+            },
+          ),
+        ]);
+      } catch (error: any) {
+        eventConsumerLogger.error(
+          { error: error.message, payload },
+          "Failed to process bisno.order.accepted message",
+        );
       }
-
-      await lead.bisno.update({ status: "done" });
-      await lead.update({ status: "accepted" });
-      await publisher.publish({
-        routingKey: "bisno.points.decrement",
-        payload: { mixeiroId: payload.mixeiroId },
-      });
-
-      await Promise.all([
-        sendTextMessageBisnoClosedToMixeiro(
-          lead.mixeiro.mobile,
-          EVOLUTION_INSTANCE_NAMES.mainInstance.name,
-          {
-            mixeiroName: lead.mixeiro.customName,
-            customerName: lead.bisno.customerName,
-            customerMobile: lead.bisno.customerMobile,
-            serviceName: lead.bisno.service.name,
-            zoneName: lead.bisno.zone.name,
-          },
-        ),
-        sendTextMessageBisnoClosedToClient(
-          lead.bisno.customerMobile,
-          EVOLUTION_INSTANCE_NAMES.mainInstance.name,
-          {
-            customerName: lead.bisno.customerName,
-            mixeiroName: lead.mixeiro.customName,
-            serviceName: lead.bisno.service.name,
-          },
-        ),
-      ]);
     },
   });
 

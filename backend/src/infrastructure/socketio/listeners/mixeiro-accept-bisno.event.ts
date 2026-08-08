@@ -23,9 +23,23 @@ export async function mixeiroAcceptBisnoEvent(payload: IMessageUpsertEvent) {
   if (
     data?.key?.fromMe === true ||
     instance !== EVOLUTION_INSTANCE_NAMES.mainInstance.name ||
-    messageText !== "sim" ||
-    messageText !== "yhea"
+    messageText !== "sim"
   ) {
+    messagesUpsertLogger.debug("Message ignored debug:", {
+      fromMe: data?.key?.fromMe,
+      fromMeType: typeof data?.key?.fromMe,
+      instance,
+      instanceType: typeof instance,
+      instanceLength: instance?.length,
+      expected: EVOLUTION_INSTANCE_NAMES.mainInstance.name,
+      expectedLength: EVOLUTION_INSTANCE_NAMES.mainInstance.name.length,
+      instanceEquals: instance === EVOLUTION_INSTANCE_NAMES.mainInstance.name,
+      messageText,
+      messageTextType: typeof messageText,
+      messageTextLength: messageText?.length,
+      messageTextEquals: messageText === "sim",
+      rawMessage: data?.message,
+    });
     return;
   }
 
@@ -51,6 +65,8 @@ export async function mixeiroAcceptBisnoEvent(payload: IMessageUpsertEvent) {
       "Lead not found by mixeiro mobile",
     );
   }
+
+  messagesUpsertLogger.debug({ lead }, "Lead found by mixeiro mobile");
 
   await lead.update({ respondedAt: new Date() });
   await publisher.publish({

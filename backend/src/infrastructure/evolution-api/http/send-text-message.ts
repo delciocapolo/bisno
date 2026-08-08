@@ -39,7 +39,7 @@ export async function sendTextMessageAboutBisno(
         body: JSON.stringify({
           number: mobileNormalized,
           text: message,
-          delay: 800, // opcional
+          delay: 800,
         }),
       },
     );
@@ -73,7 +73,7 @@ export async function sendTextMessageBisnoClosedToMixeiro(
   const customerFirstName = body.customerName.split(" ")[0];
 
   const whatsappLink = `https://wa.me/${normalizeE164(body.customerMobile)}?text=${encodeURIComponent(
-    `Olá ${customerFirstName}! Vim por intermédio da Bisno. Sou o ${mixeiroFirstName} (${body.serviceName}).`,
+    `Olá, ${customerFirstName}. Vim por intermédio da Bisno. Sou o ${mixeiroFirstName} (${body.serviceName}).`,
   )}`;
 
   const message =
