@@ -1,21 +1,25 @@
 services:
   app:
     build:
-      context: ..
+      context: ../backend
       target: dev_dependencies
     entrypoint: []
     command: ["pnpm", "run", "dev"]
     volumes:
-      - ../src:/usr/src/app/src
-      - ../package.json:/usr/src/app/package.json
-      - ../tsconfig.json:/usr/src/app/tsconfig.json
-      - ../.sequelizerc:/usr/src/app/.sequelizerc
+      - ../backend/src:/usr/src/app/src
+      - ../backend/package.json:/usr/src/app/package.json
+      - ../backend/tsconfig.json:/usr/src/app/tsconfig.json
+      - ../backend/.sequelizerc:/usr/src/app/.sequelizerc
 
   nginx:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./certs:/etc/letsencrypt:ro
+
+  evolution-api:
+    ports:
+      - "8080:8080"
 
   db:
     ports:

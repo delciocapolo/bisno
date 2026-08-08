@@ -7,11 +7,11 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "customerName": "Délcio Capolo",
-  "customerMobile": "+244923456789",
+  "customerName": "João Sebastião",
+  "customerMobile": "+244959006410",
   "customerMobileHasWhatsapp": true,
-  "serviceId": "b800ed03-6ba4-48bd-86a9-9e696e604797",
-  "zoneId": "c7c39fdc-1247-416b-a245-2802147e2a0f",
+  "serviceId": "15324893-1018-45e4-afa5-17dd6b186353",
+  "zoneId": "8b172494-0373-4c44-8721-d6c8201fa071",
   "description": "Preciso trocar o visor do meu iPhone 12 Normal"
 }
 
@@ -25,8 +25,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "categoryId": "fca88cdd-052d-47c3-8893-a51038fa0987",
-  "zoneId": "c7c39fdc-1247-416b-a245-2802147e2a0f",
+  "categoryId": "9a901491-2e51-4655-8f3d-0ce92fd408c1",
+  "zoneId": "8b172494-0373-4c44-8721-d6c8201fa071",
   "customName": "Délcio Capolo",
   "bi": "010278995LA047",
   "email": "delciocapolo096@gmail.com",

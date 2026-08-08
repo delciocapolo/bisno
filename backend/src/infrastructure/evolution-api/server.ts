@@ -3,8 +3,8 @@ import { io as SocketClient } from "socket.io-client";
 import Logger from "../pino/logger";
 import { mixeiroAcceptBisnoEvent } from "../socketio/listeners/mixeiro-accept-bisno.event";
 
-const SERVER_URL = env("SERVER_URL");
-const API_KEY = env("AUTHENTICATION_API_KEY");
+const SERVER_URL = env("EVOLUTION_SERVER_URL");
+const API_KEY = env("EVOLUTION_AUTHENTICATION_API_KEY");
 const evolutionSocket = SocketClient(SERVER_URL, {
   transports: ["websocket"],
   reconnection: true,

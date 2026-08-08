@@ -1,25 +1,19 @@
 export interface IEnvironment {
-  APP_PORT: number;
-  APP_HOST: string;
-  NODE_ENV: "development" | "production";
   TIMEZONE: string;
   JWT_SECRET: string;
+  SERVER_HOST: string;
+  SERVER_PORT: number;
+  NODE_ENV: "development" | "production";
 
   // Evolution
-  SERVER_URL: string;
-  SERVER_HOST: string;
-  AUTHENTICATION_API_KEY: string;
+  EVOLUTION_SERVER_URL: string;
+  EVOLUTION_SERVER_HOST: string;
+  EVOLUTION_AUTHENTICATION_API_KEY: string;
 
-  // WAHA
-  WAHA_URL: string;
-  WAHA_API_KEY: string;
-
-  DEFAULT_SESSION_NAME: string;
-
-  // rabbit
+  // RabbitMQ
   RABBITMQ_URI: string;
 
-  // database
+  // Database
   DB_NAME: string;
   DB_DIALECT: string;
   DB_PORT: number;

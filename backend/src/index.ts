@@ -21,10 +21,10 @@ async function bootstrap() {
     });
   }
 
-  server.listen(env("APP_PORT"), () =>
+  server.listen(env("SERVER_PORT"), () =>
     serverLogger.info({
-      port: env("APP_PORT"),
-      host: env("APP_HOST"),
+      port: env("SERVER_PORT"),
+      host: env("SERVER_HOST"),
       message: `Server is running`,
     }),
   );

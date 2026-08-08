@@ -21,6 +21,7 @@
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],
+    "outDir": "dist",
 
     /* Bundler mode */
     "moduleResolution": "bundler",

@@ -9,6 +9,9 @@ interface MessageDetails {
   mixeiroName: string | null;
 }
 
+const evolutionServerUrl = env("EVOLUTION_SERVER_URL");
+const evolutionAuthenticationApiKey = env("EVOLUTION_AUTHENTICATION_API_KEY");
+
 export async function sendTextMessageAboutBisno(
   mobile: string,
   instanceName: string,
@@ -26,12 +29,12 @@ export async function sendTextMessageAboutBisno(
   try {
     const mobileNormalized = normalizeE164(mobile);
     const response = await fetch(
-      `${env("SERVER_URL")}/message/sendText/${instanceName}`,
+      `${evolutionServerUrl}/message/sendText/${instanceName}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: env("AUTHENTICATION_API_KEY"),
+          apikey: evolutionAuthenticationApiKey,
         },
         body: JSON.stringify({
           number: mobileNormalized,
@@ -85,12 +88,12 @@ export async function sendTextMessageBisnoClosedToMixeiro(
   try {
     const mobileNormalized = normalizeE164(mobile);
     const response = await fetch(
-      `${env("SERVER_URL")}/message/sendText/${instanceName}`,
+      `${evolutionServerUrl}/message/sendText/${instanceName}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: env("AUTHENTICATION_API_KEY"),
+          apikey: evolutionAuthenticationApiKey,
         },
         body: JSON.stringify({
           number: mobileNormalized,
@@ -136,12 +139,12 @@ export async function sendTextMessageBisnoClosedToClient(
   try {
     const mobileNormalized = normalizeE164(mobile);
     const response = await fetch(
-      `${env("SERVER_URL")}/message/sendText/${instanceName}`,
+      `${evolutionServerUrl}/message/sendText/${instanceName}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: env("AUTHENTICATION_API_KEY"),
+          apikey: evolutionAuthenticationApiKey,
         },
         body: JSON.stringify({
           number: mobileNormalized,

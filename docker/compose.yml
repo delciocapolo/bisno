@@ -20,13 +20,14 @@ services:
 
   app:
     build:
-      context: ..
+      context: ../backend
       target: production
     profiles: ["app"]
     container_name: bisno_app
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../backend/.env
+      - ../secrets/.env
     healthcheck:
       test:
         [
@@ -35,7 +36,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:${APP_PORT}/api/health",
+          "http://localhost:${BISNO_SERVER_PORT}/api/health",
         ]
       interval: 10s
       timeout: 5s
@@ -109,14 +110,41 @@ services:
 
   evolution-api:
     build:
-      context: ./evolution
-      dockerfile: Dockerfile
+      context: ../lib/evolution-api
     container_name: bisno_evolution_api
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "${EVOLUTION_SERVER_URL}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     env_file:
-      - ../.env
+      - ../lib/evolution-api/.env
+    environment:
+      - DATABASE_SCHEMA=${EVOLUTION_DATABASE_SCHEMA}
+      - DATABASE_PROVIDER=${EVOLUTION_DATABASE_PROVIDER}
+      - DATABASE_CONNECTION_URI=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${EVOLUTION_POSTGRES_DATABASE}?schema=${EVOLUTION_DATABASE_SCHEMA}
+      - POSTGRES_DATABASE=${EVOLUTION_POSTGRES_DATABASE}
+      - DATABASE_CONNECTION_CLIENT_NAME=${EVOLUTION_DATABASE_CONNECTION_CLIENT_NAME}
+      - SERVER_URL=${EVOLUTION_SERVER_URL}
+      - SERVER_HOST=${EVOLUTION_SERVER_HOST}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=${EVOLUTION_AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES}
+      - EVOLUTION_OPERATOR_EMAIL=${EVOLUTION_EVOLUTION_OPERATOR_EMAIL}
+      - AUTHENTICATION_API_KEY=${EVOLUTION_AUTHENTICATION_API_KEY}
+      - CACHE_REDIS_URI=${EVOLUTION_CACHE_REDIS_URI}
+      - CACHE_REDIS_PREFIX_KEY=${EVOLUTION_CACHE_REDIS_PREFIX_KEY}
+      - WEBSOCKET_ENABLED=${EVOLUTION_WEBSOCKET_ENABLED}
+      - WEBSOCKET_GLOBAL_EVENTS=${EVOLUTION_WEBSOCKET_GLOBAL_EVENTS}
+      - WEBSOCKET_ALLOWED_HOSTS=${EVOLUTION_WEBSOCKET_ALLOWED_HOSTS}
     volumes:
       - evolution_instances:/evolution/instances
     networks:
@@ -128,20 +156,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "${SERVER_URL}",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
 
 networks:
   bisno_network:
