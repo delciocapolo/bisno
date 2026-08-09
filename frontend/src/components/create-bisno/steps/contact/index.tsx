@@ -4,19 +4,19 @@ import { store, changeStep, updateStepContactState } from "../../store";
 import { useSelector } from "@tanstack/react-store";
 import { Icon } from "@iconify/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { categoryService } from "@src/services/category/index.service";
 import { zoneService } from "@src/services/zones/index.service";
 import { channelService } from "@src/services/channels/index.service";
 import { bisnoService } from "@src/services/bisno/index.service";
 import { toast } from "sonner";
+import { serviceService } from "@src/services/service/index.service";
 
 export default function StepContact() {
   const state = useSelector(store, (state) => {
     const { step, ...rest } = state;
     return rest;
   });
-  const { mutate: getCategory, data: category } = useMutation({
-    mutationFn: categoryService.getCategory,
+  const { mutate: getService, data: category } = useMutation({
+    mutationFn: serviceService.getService,
   });
   const { mutate: getZone, data: zone } = useMutation({
     mutationFn: zoneService.getZone,
@@ -47,7 +47,7 @@ export default function StepContact() {
     if (!state.stepWhat?.serviceId || !state.stepWhat?.zoneId) return;
 
     getZone({ zoneId: state.stepWhat?.zoneId });
-    getCategory({ categoryId: state.stepWhat?.serviceId });
+    getService({ serviceId: state.stepWhat?.serviceId });
   }, [state.stepWhat?.serviceId, state.stepWhat?.zoneId]);
 
   return (
@@ -77,24 +77,54 @@ export default function StepContact() {
               <button
                 type="button"
                 key={channel.id}
+                disabled={channel.id === "mobile"}
                 onClick={() => updateStepContactState({ channel: channel.id })}
                 className={cn(
+                  "group",
                   "flex items-center justify-center gap-2 py-3 font-bold text-body-14",
                   active
                     ? "bg-background text-primary"
                     : "bg-foreground text-background",
+                  "disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed",
                 )}
               >
                 <Icon
                   icon={channel.icon}
                   fontSize="1.25rem"
-                  className={active ? "text-primary" : undefined}
+                  className={cn(
+                    active ? "text-primary" : undefined,
+                    "group-disabled:text-gray-500",
+                  )}
                 />
                 {channel.name}
               </button>
             );
           })}
         </nav>
+
+        <div className="space-y-2">
+          <label
+            htmlFor={"bisno-mobile"}
+            className="text-body-14 font-bold uppercase text-background"
+          >
+            Nome
+          </label>
+          <div className="flex border-2 border-background">
+            <input
+              id={"customer-name"}
+              name="customerCame"
+              type="text"
+              aria-label="Nome"
+              value={state.stepContact?.customerName || ""}
+              onChange={(e) =>
+                updateStepContactState({ customerName: e.target.value })
+              }
+              placeholder="O seu nome"
+              inputMode="text"
+              className="w-full bg-foreground px-4 py-3 text-body-16 placeholder:text-gray-400 focus:outline-none text-background"
+            />
+          </div>
+        </div>
 
         <div className="space-y-2">
           <label
@@ -193,8 +223,8 @@ export default function StepContact() {
             }
 
             createBisno({
-              customerName: "ANONYMOU",
-              customerMobile: state.stepContact?.mobile!,
+              customerName: state.stepContact?.customerName || "ANÓNIMO",
+              customerMobile: `+244${state.stepContact?.mobile}`,
               customerMobileHasWhatsapp:
                 state.stepContact?.channel === "whatsapp",
               description: state.stepDescription?.description!,

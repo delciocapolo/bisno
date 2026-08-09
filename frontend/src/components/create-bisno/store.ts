@@ -11,6 +11,7 @@ interface IStepDescription {
 
 interface IStepContact {
   mobile: string | undefined;
+  customerName: string | undefined;
   channel: "whatsapp" | "mobile" | undefined;
 }
 
@@ -28,6 +29,7 @@ const INITIAL_VALUES: StoreSteps = {
   stepContact: {
     channel: "whatsapp",
     mobile: undefined,
+    customerName: undefined,
   },
 };
 
@@ -63,6 +65,10 @@ export const updateStepContactState = (contact: Partial<IStepContact>) => {
     ...prev,
     stepContact: {
       mobile: "mobile" in contact ? contact.mobile : prev.stepContact?.mobile,
+      customerName:
+        "customerName" in contact
+          ? contact.customerName
+          : prev.stepContact?.customerName,
       channel:
         "channel" in contact ? contact.channel : prev.stepContact?.channel,
     },

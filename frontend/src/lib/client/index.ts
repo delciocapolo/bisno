@@ -3,7 +3,7 @@ import { env } from "@src/env";
 import { getToken } from "./utils";
 
 const client = axios.create({
-  baseURL: env.SERVER_URL,
+  baseURL: env.VITE_API_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -15,7 +15,7 @@ client.interceptors.request.use(
   (config) => {
     const AUTH_TOKEN = getToken();
 
-    if (AUTH_TOKEN && !config.headers.Authorization) {
+    if (AUTH_TOKEN && AUTH_TOKEN !== null && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${AUTH_TOKEN}`;
     }
 

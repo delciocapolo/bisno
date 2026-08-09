@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
 import { env } from "@src/env";
+import { Icon } from "@iconify/react";
 import FadeTicker from "@src/components/fade-ticket";
 import FloatingWhatsappButton from "@src/components/floating-whatsapp-button";
 import MarqueeBanner from "@src/components/marquee-banner";
 import { NavbarHeightElement } from "@src/components/navbar";
 import { cn, defaultValue } from "@src/lib/utils";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import Navbar from "@src/components/navbar";
 import Footer from "@src/components/footer";
 import { useQuery } from "@tanstack/react-query";
-import { categoryService } from "@src/services/category/index.service";
+import { serviceService } from "@src/services/service/index.service";
+import { bisnoService } from "@src/services/bisno/index.service";
+import { format } from "date-fns";
+import { updateStepWhatState } from "@src/components/create-bisno/store";
 
 export const Route = createFileRoute("/")({ component: Home });
 const STEPS = [
@@ -32,23 +34,27 @@ const STEPS = [
 ];
 
 function Home() {
-  const [totaBisnosToday, setTotaBisnosToday] = useState<number>(0);
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
+  const navigate = useNavigate();
+  const { data: services } = useQuery({
+    queryKey: ["services"],
     queryFn: async () => {
-      const { data } = await categoryService.list({ pageSize: 12 });
+      const { data } = await serviceService.list({ pageSize: 12 });
       return data;
     },
   });
-
-  useEffect(() => {
-    function getRandomInt(min: number, max: number) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    setInterval(() => {
-      setTotaBisnosToday(getRandomInt(1, 500));
-    }, 5000);
-  }, []);
+  const { data: bisnos } = useQuery({
+    queryKey: ["bisnos"],
+    queryFn: async () => {
+      let { data } = await bisnoService.list({ pageSize: 12 });
+      data = data.filter(
+        (bisno) =>
+          format(bisno.createdAt, "yyyy-MM-dd") ===
+          format(new Date(), "yyyy-MM-dd"),
+      );
+      return data;
+    },
+    staleTime: 1000 * 60 * 1, // 1 minutes
+  });
 
   return (
     <>
@@ -64,7 +70,13 @@ function Home() {
           )}
         >
           <div className="container mx-auto space-y-7">
-            <FadeTicker />
+            <FadeTicker
+              bisnos={
+                bisnos?.map(
+                  (b) => `Alguém em ${b.zone.name} procura ${b.service.name}`,
+                ) || ["Nenhum bisno disponível no momento."]
+              }
+            />
 
             <div className="font-heading uppercase text-background">
               <h1 className="text-[clamp(2.65rem,5.75vw,8rem)] leading-25 max-lg:leading-12 ">
@@ -107,9 +119,10 @@ function Home() {
             <div className="">
               <p className="flex items-center gap-2 text-body-16 font-semibold text-background">
                 <b className="text-[#C1121F] text-headline-24">
-                  {totaBisnosToday}
+                  {bisnos?.length || 0}
                 </b>{" "}
-                bisnos activos hoje em Luanda
+                {(bisnos?.length || 0) <= 1 ? "bisno activo" : "bisnos activos"}{" "}
+                hoje em Luanda
               </p>
             </div>
           </div>
@@ -130,28 +143,30 @@ function Home() {
               </p>
             </div>
 
-            <ul className="grid grid-cols-6 gap-5 max-lg:grid-cols-2">
-              {categories?.map((category, index) => (
-                <li key={index} className="inline-flex">
-                  <Link
-                    to="/"
-                    className={cn(
-                      "shadow-border-style",
-                      "inline-flex items-start justify-center flex-col gap-3 px-5 py-7 w-full",
-                      "hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#17130D] hover:no-underline",
-                    )}
-                  >
-                    <Icon
-                      icon={category.icon}
-                      className="text-[#C1121F] text-2xl"
-                    />
-                    <span className="font-sans text-body-14 font-extrabold text-background uppercase">
-                      {category.name}
-                    </span>
-                  </Link>
-                </li>
+            <nav className="grid grid-cols-6 gap-5 max-lg:grid-cols-2">
+              {services?.map((service, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    updateStepWhatState({ serviceId: service.id });
+                    navigate({ to: "/bisno" });
+                  }}
+                  className={cn(
+                    "shadow-border-style text-start",
+                    "inline-flex items-start justify-center flex-col gap-3 px-5 py-7 w-full",
+                    "hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#17130D] hover:no-underline",
+                  )}
+                >
+                  <Icon
+                    icon={service.icon}
+                    className="text-[#C1121F] text-2xl"
+                  />
+                  <span className="font-sans text-body-14 font-extrabold text-background uppercase">
+                    {service.name}
+                  </span>
+                </button>
               ))}
-            </ul>
+            </nav>
           </article>
         </section>
 

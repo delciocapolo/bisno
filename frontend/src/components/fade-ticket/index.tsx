@@ -1,21 +1,21 @@
 import { cn } from "@src/lib/utils";
 import { useEffect, useState } from "react";
-import { BISNOS_SAMPLE, INTERVALO_MS } from "./constants";
+import { INTERVALO_MS } from "./constants";
 
 interface IFadeTicker {
-  bisnos?: string[];
+  bisnos: string[];
 }
 
-export default function FadeTicker({ bisnos = BISNOS_SAMPLE }: IFadeTicker) {
+export default function FadeTicker({ bisnos }: IFadeTicker) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(
-      () => setIndex((i) => (i + 1) % bisnos.length),
-      INTERVALO_MS,
-    );
+    const timer = setInterval(() => {
+      if (bisnos.length === 0) return;
+      setIndex((i) => (i + 1) % bisnos.length);
+    }, INTERVALO_MS);
     return () => clearInterval(timer);
-  }, []);
+  }, [bisnos.length]);
 
   return (
     <div className="max-h-8.5 overflow-hidden w-fit max-w-full inline-flex items-center gap-2 bg-background py-2 px-3.5">

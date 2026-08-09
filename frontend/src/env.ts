@@ -3,7 +3,7 @@ import { createEnv } from "@t3-oss/env-core";
 
 export const env = createEnv({
   server: {
-    SERVER_URL: z.string().url().optional(),
+    SERVER_URL: z.url().optional(),
   },
 
   /**
@@ -15,6 +15,7 @@ export const env = createEnv({
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
     VITE_APP_NAME: z.string().min(1).optional().default("Bisno"),
+    VITE_API_URL: z.url().min(1),
   },
 
   /**

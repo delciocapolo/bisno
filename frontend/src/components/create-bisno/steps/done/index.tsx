@@ -3,17 +3,17 @@ import { useSelector } from "@tanstack/react-store";
 import { useEffect } from "react";
 import { changeStep, resetBisnoStore, store } from "../../store";
 import { useMutation } from "@tanstack/react-query";
-import { categoryService } from "@src/services/category/index.service";
 import { zoneService } from "@src/services/zones/index.service";
 import { defaultValue } from "@src/lib/utils";
+import { serviceService } from "@src/services/service/index.service";
 
 export default function DoneStep() {
   const state = useSelector(store, (state) => {
     const { step, ...rest } = state;
     return rest;
   });
-  const { mutate: getCategory, data: category } = useMutation({
-    mutationFn: categoryService.getCategory,
+  const { mutate: getService, data: service } = useMutation({
+    mutationFn: serviceService.getService,
   });
   const { mutate: getZone, data: zone } = useMutation({
     mutationFn: zoneService.getZone,
@@ -23,7 +23,7 @@ export default function DoneStep() {
     if (!state.stepWhat?.serviceId || !state.stepWhat?.zoneId) return;
 
     getZone({ zoneId: state.stepWhat?.zoneId });
-    getCategory({ categoryId: state.stepWhat?.serviceId });
+    getService({ serviceId: state.stepWhat?.serviceId });
   }, [state.stepWhat?.serviceId, state.stepWhat?.zoneId]);
 
   return (
@@ -40,7 +40,7 @@ export default function DoneStep() {
       </div>
 
       <p className="text-body-16 font-medium text-background max-w-sm text-center">
-        O teu pedido de <b>{defaultValue(category?.data?.name)}</b> já foi
+        O teu pedido de <b>{defaultValue(service?.data?.name)}</b> já foi
         distribuído aos mixeiros de <b>{defaultValue(zone?.data?.name)}</b>.
       </p>
 

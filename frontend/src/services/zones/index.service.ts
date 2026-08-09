@@ -1,6 +1,7 @@
 import type { IApiResponse } from "@src/shared/@types/api";
 import type { IZone } from "./types";
 import type { IFilter } from "@src/shared/@types/filter";
+import { client } from "@src/lib/client";
 
 export const ZONES: IZone[] = [
   {
@@ -92,38 +93,20 @@ export const ZONES: IZone[] = [
 export const zoneService = {
   list: async (filters?: Partial<IFilter & { zoneName: string }>) => {
     try {
-      return new Promise<IApiResponse<IZone[]>>((resolve) => {
-        setTimeout(() => {
-          resolve({
-            data: ZONES.filter((zone) =>
-              zone.name
-                .toLowerCase()
-                .includes(filters?.zoneName?.toLowerCase() || ""),
-            ).slice(0, filters?.pageSize),
-            meta: { errors: null },
-          });
-        }, 500);
+      const { data } = await client.get<IApiResponse<IZone[]>>("/zones", {
+        params: { filters: filters },
       });
-      // const { data } = await client.get<IApiResponse<IZone[]>>("/zones");
-      // return data;
+      return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Erro Desconhecido");
     }
   },
   getZone: async ({ zoneId }: { zoneId: string }) => {
     try {
-      return new Promise<IApiResponse<IZone | undefined>>((resolve) => {
-        setTimeout(() => {
-          resolve({
-            data: ZONES.find((zone) => zone.id === zoneId),
-            meta: { errors: null },
-          });
-        }, 500);
-      });
-      // const { data } = await client.get<IApiResponse<IZone | undefined>>(
-      //   `/service-categories/${zoneId}`,
-      // );
-      // return data;
+      const { data } = await client.get<IApiResponse<IZone | undefined>>(
+        `/zones/${zoneId}`,
+      );
+      return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Erro Desconhecido");
     }
