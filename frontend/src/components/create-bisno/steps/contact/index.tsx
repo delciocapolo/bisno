@@ -80,8 +80,7 @@ export default function StepContact() {
                 disabled={channel.id === "mobile"}
                 onClick={() => updateStepContactState({ channel: channel.id })}
                 className={cn(
-                  "group",
-                  "flex items-center justify-center gap-2 py-3 font-bold text-body-14",
+                  "group flex items-center justify-center gap-2 py-3 font-bold text-body-14",
                   active
                     ? "bg-background text-primary"
                     : "bg-foreground text-background",

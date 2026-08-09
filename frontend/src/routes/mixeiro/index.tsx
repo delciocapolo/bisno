@@ -318,20 +318,25 @@ function RouteComponent() {
 
                         return (
                           <button
-                            key={channel.id}
                             type="button"
+                            key={channel.id}
+                            disabled={channel.id === "mobile"}
                             onClick={() => field.handleChange(channel.id)}
                             className={cn(
-                              "flex items-center justify-center gap-2 py-3 font-bold text-body-14",
+                              "group flex items-center justify-center gap-2 py-3 font-bold text-body-14",
                               active
                                 ? "bg-background text-primary"
                                 : "bg-foreground text-background",
+                              "disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed",
                             )}
                           >
                             <Icon
                               icon={channel.icon}
                               fontSize="1.25rem"
-                              className={active ? "text-primary" : undefined}
+                              className={cn(
+                                active ? "text-primary" : undefined,
+                                "group-disabled:text-gray-500",
+                              )}
                             />
                             {channel.name}
                           </button>
