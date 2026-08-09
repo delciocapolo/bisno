@@ -28,7 +28,7 @@ function getOrCreateLogger(destinationName: string): P.Logger {
       timestamp: () =>
         `,"timestamp":"${formatInTimeZone(new Date(), env("TIMEZONE"), "yyyy-MM-dd HH:mm:ss")}"`,
     },
-    P.destination({ dest: logFile, sync: true }), // sync elimina a corrida com process.exit
+    P.destination({ dest: logFile, sync: true }),
   );
 
   destinationCache.set(destinationName, instance);
@@ -39,7 +39,7 @@ export class LoggerService implements AbstractLogger {
   constructor(private readonly scope?: string) {}
 
   private resolveDestinationName(level: ILoggerLevelType): string {
-    return this.scope ?? level; // se tem scope (via publishTo), usa-o sempre; senão, usa o nível
+    return this.scope || level;
   }
 
   private log(level: ILoggerLevelType, ...params: any[]): void {

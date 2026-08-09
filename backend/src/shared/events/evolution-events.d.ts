@@ -31,6 +31,18 @@ export interface IEvolutionMessageData {
   source?: string;
 }
 
+export type IEvolutionConnectionUpdateData =
+  | { instance: string; state: "connecting"; statusReason: 200 }
+  | { instance: string; state: "close"; statusReason: 401 }
+  | {
+      wuid: string;
+      state: "open";
+      instance: string;
+      profileName: string;
+      profilePictureUrl: string;
+      statusReason: 200;
+    };
+
 export interface IEvolutionEventPayload {
   event: IEventNames; // ex: 'messages.upsert'
   instance: string; // nome da instância
@@ -45,4 +57,10 @@ export interface IEvolutionEventPayload {
 export interface IMessageUpsertEvent extends IEvolutionEventPayload {
   event: "messages.upsert";
   data: IEvolutionMessageData;
+}
+
+// connection.update event
+export interface IConnectionUpdateEvent extends IEvolutionEventPayload {
+  event: "connection.update";
+  data: IEvolutionConnectionUpdateData;
 }

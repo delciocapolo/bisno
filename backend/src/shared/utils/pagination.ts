@@ -9,8 +9,8 @@ class Pagination<T extends Model> {
     filters?: Partial<SchemaValidatePaginationFilters>,
     options?: Omit<FindAndCountOptions, "limit" | "offset">,
   ) {
-    const page = filters?.page ?? paginationConfig.start;
-    const pageSize = filters?.pageSize ?? paginationConfig.limit;
+    const page = filters?.page || paginationConfig.start;
+    const pageSize = filters?.pageSize || paginationConfig.limit;
     const offset = (page - 1) * pageSize;
 
     const { rows, count } = await this.model.findAndCountAll({

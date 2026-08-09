@@ -2,6 +2,7 @@ import env from "@src/config/env";
 import { io as SocketClient } from "socket.io-client";
 import Logger from "../pino/logger";
 import { mixeiroAcceptBisnoEvent } from "../socketio/listeners/mixeiro-accept-bisno.event";
+import type { IConnectionUpdateEvent } from "@src/shared/events/evolution-events";
 
 const SERVER_URL = env("EVOLUTION_SERVER_URL");
 const API_KEY = env("EVOLUTION_AUTHENTICATION_API_KEY");
@@ -32,11 +33,40 @@ evolutionSocket.on("connect_error", (err: any) => {
 evolutionSocket.on("disconnect", (reason) => {
   evolutionApiLogger.warn({ reason }, "Disconnected:");
 
-  // Log more details on parse error
   if (reason === "parse error") {
     evolutionApiLogger.error(
       "Parse error detected - possible binary data or version mismatch",
     );
+  }
+});
+
+const disconnectTimers = new Map<string, NodeJS.Timeout>();
+
+evolutionSocket.on("connection.update", (payload: IConnectionUpdateEvent) => {
+  const data = payload?.data;
+  const state = data?.state;
+  const instance = payload?.instance || "unknown";
+
+  if (state === "open") {
+    const t = disconnectTimers.get(instance);
+    if (t) clearTimeout(t);
+    disconnectTimers.delete(instance);
+    return;
+  }
+
+  if (state === "close") {
+    if (disconnectTimers.has(instance)) return;
+
+    const timer = setTimeout(
+      () => {
+        disconnectTimers.delete(instance);
+        // TODO: sendTelegram / sendEmail(...)
+        // notificar só se ainda não voltou a open em 2–5 min
+      },
+      3 * 60 * 1000,
+    );
+
+    disconnectTimers.set(instance, timer);
   }
 });
 

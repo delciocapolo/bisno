@@ -35,6 +35,7 @@ import {
 } from "@src/infrastructure/evolution-api/http/send-text-message.js";
 import { EVOLUTION_INSTANCE_NAMES } from "@src/infrastructure/evolution-api/instances/names.js";
 import { Mixeiro } from "@src/infrastructure/sequelize/models/mixeiro.model.js";
+import { MixeiroDecrementRules } from "@src/domain/enums/mixeiro-decrement.enum.js";
 
 export async function registerConsumers(): Promise<void> {
   await consumer.consume<BisnoCreatedPayload>({
@@ -49,7 +50,7 @@ export async function registerConsumers(): Promise<void> {
 
       await publisher.publish({
         routingKey: "bisno.distribution.start",
-        payload: [bisno],
+        payload: [bisno.get({ plain: true })],
       });
     },
   });
@@ -66,40 +67,54 @@ export async function registerConsumers(): Promise<void> {
         });
 
         if (isDefined(mixeiro)) {
-          const lead = await createLeadUseCase.execute({
-            mixeiroId: mixeiro.id,
-            bisnoId: bisno.id,
-          });
+          let lead = await getLeadByBisnoIdUseCase.execute(bisno.id);
+
+          if (isDefined(lead)) {
+            await lead.update({ mixeiroId: mixeiro.id, status: "sent" });
+          } else {
+            lead = await createLeadUseCase.execute({
+              mixeiroId: mixeiro.id,
+              bisnoId: bisno.id,
+            });
+          }
 
           if (isDefined(lead)) {
             await publisher.publish({
               routingKey: "bisno.notification.send",
-              payload: [lead],
+              payload: [lead.get({ plain: true })],
             });
 
             await publisher.publish({
               routingKey: "bisno.mixeiro.locked",
-              payload: [mixeiro],
+              payload: [mixeiro.get({ plain: true })],
             });
 
             await mixeiro.update({ isLocked: true });
           }
         } else {
           eventConsumerLogger.error({ bisno }, "No eligible mixeiro found");
+
           const originalBisno = await getBisnoUseCase.execute(bisno.id);
-          await originalBisno?.update({
-            distributionRound:
-              Number(originalBisno?.distributionRound || 0) + 1,
-          });
-          await publisher.publish({
-            routingKey: "bisno.distribution.reset",
-            payload: [
-              {
-                ...bisno,
-                categoryId: service?.categoryId,
-              },
-            ],
-          });
+          const nextRound = Number(originalBisno?.distributionRound || 0) + 1;
+
+          await originalBisno?.update({ distributionRound: nextRound });
+
+          if (nextRound >= MixeiroDecrementRules.DEFAULT) {
+            const lead = await getLeadByBisnoIdUseCase.execute(bisno.id);
+            await publisher.publish({
+              routingKey: "bisno.order.exhausted",
+              payload: isDefined(lead) ? [lead.get({ plain: true })] : [],
+            });
+          } else {
+            const bisnoHandled = {
+              ...bisno,
+              categoryId: service?.categoryId,
+            };
+            await publisher.publish({
+              routingKey: "bisno.distribution.reset",
+              payload: [bisnoHandled],
+            });
+          }
         }
       }
     },
@@ -112,7 +127,7 @@ export async function registerConsumers(): Promise<void> {
       for (const lead of payload) {
         const leadFound = await getLeadByIdUseCase.execute(lead.id);
         const bisno = await Bisno.findByPk(lead.bisnoId, {
-          include: [{ model: Service }, { model: Zone }],
+          include: [Service, Zone],
         });
         const mixeiro = await getMixeiroByIdUseCase.execute(lead?.mixeiroId);
 
@@ -142,6 +157,19 @@ export async function registerConsumers(): Promise<void> {
     queue: "bisno.distribution.reset.queue",
     onMessage: async (payload) => {
       for (const bisno of payload) {
+        const current = await getBisnoUseCase.execute(bisno.id);
+
+        if (
+          (current?.distributionRound || 0) >= MixeiroDecrementRules.DEFAULT
+        ) {
+          const lead = await getLeadByBisnoIdUseCase.execute(bisno.id);
+          await publisher.publish({
+            routingKey: "bisno.order.exhausted",
+            payload: isDefined(lead) ? [lead.get({ plain: true })] : [],
+          });
+          continue;
+        }
+
         const mixeirosUnlocked = await listMixeirosUseCase.execute({
           where: {
             isLocked: false,
@@ -206,7 +234,7 @@ export async function registerConsumers(): Promise<void> {
           );
         }
 
-        if (bisno.distributionRound >= 2) {
+        if (bisno.distributionRound >= MixeiroDecrementRules.DEFAULT) {
           await publisher.publish({
             routingKey: "bisno.order.exhausted",
             payload: [lead],
@@ -214,7 +242,7 @@ export async function registerConsumers(): Promise<void> {
         } else {
           await publisher.publish({
             routingKey: "bisno.distribution.next",
-            payload: [bisno],
+            payload: [bisno.get({ plain: true })],
           });
         }
       }
@@ -262,32 +290,39 @@ export async function registerConsumers(): Promise<void> {
           );
         }
 
+        const lead = await getLeadByBisnoIdUseCase.execute(bisno.id);
         const mixeiro = await getNextEligibleMixeiroUseCase.execute({
           serviceId: service.id,
           zoneId: bisno.zoneId,
         });
 
         if (isDefined(mixeiro)) {
-          const lead = await getLeadByBisnoIdUseCase.execute(bisno.id);
           await lead?.update({ mixeiroId: mixeiro.id });
           await publisher.publish({
             routingKey: "bisno.notification.send",
-            payload: [lead],
+            payload: [lead?.get({ plain: true })],
           });
         } else {
           eventConsumerLogger.error({ bisno }, "No eligible mixeiro found");
-          await bisnoFound?.update({
-            distributionRound: Number(bisnoFound?.distributionRound || 0) + 1,
-          });
-          await publisher.publish({
-            routingKey: "bisno.distribution.reset",
-            payload: [
-              {
-                ...bisno,
-                categoryId: service?.categoryId,
-              },
-            ],
-          });
+
+          const nextRound = Number(bisnoFound?.distributionRound || 0) + 1;
+          await bisnoFound?.update({ distributionRound: nextRound });
+
+          if (nextRound >= MixeiroDecrementRules.DEFAULT) {
+            await publisher.publish({
+              routingKey: "bisno.order.exhausted",
+              payload: isDefined(lead) ? [lead.get({ plain: true })] : [],
+            });
+          } else {
+            const bisnoHandled = {
+              ...bisno,
+              categoryId: service?.categoryId,
+            };
+            await publisher.publish({
+              routingKey: "bisno.distribution.reset",
+              payload: [bisnoHandled],
+            });
+          }
         }
       }
     },
