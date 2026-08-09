@@ -10,6 +10,8 @@ import Logger from "../pino/logger.js";
 import { mixeiroRoutes } from "./routes/mixeiros/index.js";
 import { mixeiroSubscriptionRoutes } from "./routes/mixeiros-subscription/index.js";
 import { serviceRoutes } from "./routes/services/index.js";
+import { categoryServiceRoutes } from "./routes/category-service/index.js";
+import { zonesRoutes } from "./routes/zones/index.js";
 
 const app = express();
 const server = createServer(app);
@@ -25,6 +27,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/bisnos", bisnoRoutes);
 app.use("/api/mixeiros", mixeiroRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/zones", zonesRoutes);
+app.use("/api/category-services", categoryServiceRoutes);
 app.use("/api/mixeiro-subscriptions", mixeiroSubscriptionRoutes);
 app.use("/api/health", healthRoutes);
 

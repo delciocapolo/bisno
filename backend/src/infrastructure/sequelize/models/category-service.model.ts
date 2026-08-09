@@ -11,7 +11,7 @@ interface CategoryServiceAttributes {
 
 type CategoryServiceCreationAttributes = Optional<
   CategoryServiceAttributes,
-  "id"
+  "id" | "isActive"
 >;
 
 @Table({
@@ -19,7 +19,7 @@ type CategoryServiceCreationAttributes = Optional<
   underscored: true,
   tableName: dbNameTables.categoryServices,
 })
-export class CategoryService extends Model<
+class CategoryService extends Model<
   CategoryServiceAttributes,
   CategoryServiceCreationAttributes
 > {
@@ -52,3 +52,5 @@ export class CategoryService extends Model<
   })
   declare isActive: boolean;
 }
+
+export { CategoryService, CategoryServiceAttributes };

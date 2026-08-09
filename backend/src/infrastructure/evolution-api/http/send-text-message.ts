@@ -127,12 +127,12 @@ export async function sendTextMessageBisnoClosedToClient(
   body: ClientClosingMessageDetails,
 ) {
   const clientFirstName = body.customerName.split(" ")[0];
-  const mixeiroFirstName = body.mixeiroName.split(" ")[0];
+  // const mixeiroFirstName = body.mixeiroName.split(" ")[0];
 
   const message =
-    `${clientFirstName}, encontrámos alguém para si! 🎉\n\n` +
+    `${clientFirstName}, encontrámos alguém para si.\n\n` +
     `*Serviço:* ${body.serviceName}\n` +
-    `*Mixeiro:* ${mixeiroFirstName}\n\n` +
+    `*Mixeiro:* ${body.customerName}\n\n` +
     `Em breve entrará em contacto consigo pelo WhatsApp.\n` +
     `Obrigado por usar a Bisno.`;
 

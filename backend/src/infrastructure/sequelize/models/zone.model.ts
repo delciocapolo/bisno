@@ -9,14 +9,14 @@ interface ZoneAttributes {
   isActive: boolean;
 }
 
-type ZoneCreationAttributes = Optional<ZoneAttributes, "id">;
+type ZoneCreationAttributes = Optional<ZoneAttributes, "id" | "isActive">;
 
 @Table({
   timestamps: false,
   underscored: true,
   tableName: dbNameTables.zones,
 })
-export class Zone extends Model<ZoneAttributes, ZoneCreationAttributes> {
+class Zone extends Model<ZoneAttributes, ZoneCreationAttributes> {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -46,3 +46,5 @@ export class Zone extends Model<ZoneAttributes, ZoneCreationAttributes> {
   })
   declare isActive: boolean;
 }
+
+export { Zone, ZoneAttributes };

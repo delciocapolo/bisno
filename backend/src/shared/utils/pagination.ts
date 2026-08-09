@@ -1,6 +1,6 @@
-import { Model, ModelStatic, FindAndCountOptions } from "sequelize";
+import type { Model, ModelStatic, FindAndCountOptions } from "sequelize";
 import { paginationConfig } from "@src/config/pagination";
-import { SchemaValidatePaginationFilters } from "../@types/pagination";
+import type { SchemaValidatePaginationFilters } from "../@types/pagination";
 
 class Pagination<T extends Model> {
   constructor(private model: ModelStatic<T>) {}
