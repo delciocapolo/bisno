@@ -13,21 +13,22 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
-      app:
+      api:
         condition: service_healthy
+      client:
+        condition: service_started
     networks:
       - bisno_network
 
-  app:
+  api:
     build:
       context: ../backend
       target: production
-    profiles: ["app"]
+    platform: linux/amd64
+    image: delciocapolo/bisno-api:latest
+    profiles: ["api"]
     container_name: bisno_app
     restart: unless-stopped
-    env_file:
-      - ../backend/.env
-      - ../secrets/.env
     healthcheck:
       test:
         [
@@ -36,7 +37,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:${BISNO_SERVER_PORT}/api/health",
+          "http://localhost:${SERVER_PORT}/api/health",
         ]
       interval: 10s
       timeout: 5s
@@ -53,6 +54,23 @@ services:
         condition: service_healthy
     networks:
       - bisno_network
+
+  client:
+    build:
+      context: ../frontend
+      target: production
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Bisno}
+    platform: linux/amd64
+    image: delciocapolo/bisno-client:latest
+    container_name: bisno_client
+    restart: unless-stopped
+    networks:
+      - bisno_network
+    depends_on:
+      api:
+        condition: service_healthy
 
   db:
     image: postgres:16-alpine
@@ -111,6 +129,8 @@ services:
   evolution-api:
     build:
       context: ../lib/evolution-api
+    platform: linux/amd64
+    image: delciocapolo/bisno-evolution-api:latest
     container_name: bisno_evolution_api
     restart: unless-stopped
     healthcheck:
