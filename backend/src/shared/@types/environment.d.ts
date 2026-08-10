@@ -3,7 +3,7 @@ export interface IEnvironment {
   JWT_SECRET: string;
   SERVER_HOST: string;
   SERVER_PORT: number;
-  NODE_ENV: "development" | "production";
+  NODE_ENV: "dev" | "prod";
 
   // Evolution
   EVOLUTION_SERVER_URL: string;

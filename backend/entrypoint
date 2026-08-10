@@ -2,13 +2,13 @@
 
 echo "-> Current NODE_ENV is [$NODE_ENV]"
 
-if [ "$NODE_ENV" = "production" ]; then
+if [ "$NODE_ENV" = "prod" ]; then
   echo "-> Running application in production mode"
-  pnpm run start
-elif [ "$NODE_ENV" = "development" ]; then
+  node .output/index.js
+elif [ "$NODE_ENV" = "dev" ]; then
   echo "-> Running application in development mode"
   pnpm run start:dev
 else
   echo "-> NODE_ENV not set or unknown. Falling back to default."
-  pnpm run start
+  node .output/index.js
 fi

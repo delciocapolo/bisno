@@ -85,7 +85,7 @@ evolutionSocket.on("message.error", (data: any) => {
 
 evolutionSocket.on("messages.upsert", mixeiroAcceptBisnoEvent);
 
-if (env("NODE_ENV") == "development") {
+if (env("NODE_ENV") == "dev") {
   evolutionSocket.onAny((eventName, ...args) => {
     console.log(
       `📨 Event received: ${eventName}`,

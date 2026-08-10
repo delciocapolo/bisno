@@ -6,7 +6,7 @@ type IEnvironmentKeys = keyof IEnvironment;
 const envDefault: Partial<IEnvironment> = {
   SERVER_PORT: getSafeInteger(process.env.SERVER_PORT) || 3333,
   SERVER_HOST: process.env.SERVER_HOST || "localhost",
-  NODE_ENV: (process.env.NODE_ENV as IEnvironment["NODE_ENV"]) || "development",
+  NODE_ENV: (process.env.NODE_ENV as IEnvironment["NODE_ENV"]) || "dev",
   TIMEZONE: process.env.TIMEZONE || "Africa/Luanda",
   RABBITMQ_URI: process.env.RABBITMQ_URI || "",
   DB_NAME: process.env.DB_NAME || "bisno",

@@ -8,3 +8,4 @@
 dist/
 storage/
 node_modules/
+.output/

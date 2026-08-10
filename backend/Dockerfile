@@ -42,5 +42,5 @@ RUN pnpm run build
 # STAGE 5: PRODUCTION
 FROM base AS production
 COPY --chown=${USER}:${USER} --from=dependencies /usr/src/app/node_modules ./node_modules
-COPY --chown=${USER}:${USER} --from=build /usr/src/app/dist ./dist
+COPY --chown=${USER}:${USER} --from=build /usr/src/app/.output ./.output
 COPY --chown=${USER}:${USER} ./package.json ./
