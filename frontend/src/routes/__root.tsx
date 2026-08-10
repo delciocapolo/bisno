@@ -9,6 +9,7 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@src/integrations/theme/provider";
+import { env } from "@src/env";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -20,7 +21,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { title: "TanStack Start Starter" },
+      { title: env.VITE_APP_NAME },
       {
         name: "viewport",
         content: "width=device-width, initial-scale=1",

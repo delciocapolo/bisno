@@ -1,59 +1,45 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=22.14.0
 ARG PNPM_VERSION=10.6.5
 
-#========================================
-#               Base
-#========================================
 FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /usr/src/app
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm@${PNPM_VERSION}
 
-#========================================
-#   Production dependencies only
-#========================================
-FROM base AS deps
-
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --prod --frozen-lockfile
-
-#========================================
-#      Full dependencies (incl. dev)
-#   Used by build and by the dev target
-#========================================
 FROM base AS dev_dependencies
-
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+    --mount=type=bind,source=pnpm-workspace.yaml,target=pnpm-workspace.yaml \
+    --mount=type=bind,source=.npmrc,target=.npmrc \
     --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
-#========================================
-#               Build
-#========================================
 FROM dev_dependencies AS build
 
-COPY . .
+# ===== Variáveis que o Vite precisa no build =====
+ARG VITE_API_URL
+ARG VITE_APP_NAME=Bisno
 
+# Transforma os ARGs em ENVs para o Vite enxergar durante o build
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_APP_NAME=$VITE_APP_NAME
+
+COPY . .
 RUN pnpm run build
 
-#========================================
-#           Production image
-#========================================
-FROM base AS production
-
+# Stage final: servidor Node SSR
+FROM node:${NODE_VERSION}-alpine AS production
+WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
 
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-COPY package.json ./
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodejs
+USER nodejs
 
-USER node
+COPY --from=build /usr/src/app/.output ./.output
 
 EXPOSE 3000
-
-CMD ["pnpm", "run", "preview"]
+CMD ["node", ".output/server/index.mjs"]
