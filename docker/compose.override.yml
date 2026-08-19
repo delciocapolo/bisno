@@ -9,6 +9,7 @@ services:
       - ../backend/src:/usr/src/app/src
       - ../backend/package.json:/usr/src/app/package.json
       - ../backend/tsconfig.json:/usr/src/app/tsconfig.json
+      - ../backend/tsup.config.ts:/usr/src/app/tsup.config.ts
       - ../backend/.sequelizerc:/usr/src/app/.sequelizerc
     environment:
       - NODE_ENV=dev
@@ -20,7 +21,7 @@ services:
     entrypoint: []
     command: ["pnpm", "run", "dev"]
     ports:
-      - "${BISNO_CLIENT_PORT}:3000"
+      - "${VITE_APP_PORT}:3000"
     volumes:
       - ../frontend/src:/usr/src/app/src
       - ../frontend/public:/usr/src/app/public
@@ -28,6 +29,7 @@ services:
       - ../frontend/pnpm-lock.yaml:/usr/src/app/pnpm-lock.yaml
       - ../frontend/tsconfig.json:/usr/src/app/tsconfig.json
       - ../frontend/vite.config.ts:/usr/src/app/vite.config.ts
+      - ../frontend/pnpm-workspace.yaml:/usr/src/app/pnpm-workspace.yaml
     environment:
       - NODE_ENV=dev
 

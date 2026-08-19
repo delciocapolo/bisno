@@ -8,6 +8,9 @@ import { nitro } from "nitro/vite";
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [devtools(), tailwindcss(), nitro(), tanstackStart(), viteReact()],
+  server: {
+    allowedHosts: ["www.bisno.ao"],
+  },
 });
 
 export default config;

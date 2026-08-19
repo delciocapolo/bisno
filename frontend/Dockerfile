@@ -21,10 +21,12 @@ FROM dev_dependencies AS build
 # ===== Variáveis que o Vite precisa no build =====
 ARG VITE_API_URL
 ARG VITE_APP_NAME=Bisno
+ARG VITE_APP_PORT=3000
 
 # Transforma os ARGs em ENVs para o Vite enxergar durante o build
 ENV VITE_API_URL=$VITE_API_URL \
-    VITE_APP_NAME=$VITE_APP_NAME
+    VITE_APP_NAME=$VITE_APP_NAME \
+    VITE_APP_PORT=$VITE_APP_PORT
 
 COPY . .
 RUN pnpm run build

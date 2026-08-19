@@ -27,8 +27,11 @@ services:
     platform: linux/amd64
     image: delciocapolo/bisno-api:latest
     profiles: ["api"]
-    container_name: bisno_app
+    container_name: bisno_api
     restart: unless-stopped
+    env_file:
+      - path: ../secrets/.env
+        required: true
     healthcheck:
       test:
         [
@@ -66,6 +69,9 @@ services:
     image: delciocapolo/bisno-client:latest
     container_name: bisno_client
     restart: unless-stopped
+    env_file:
+      - path: ../secrets/.env
+        required: true
     networks:
       - bisno_network
     depends_on:
