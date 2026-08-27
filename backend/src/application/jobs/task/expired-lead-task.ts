@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { listExpiredLeadUseCase } from "@src/application/use-cases/composition";
-import { publisher } from "@src/infrastructure/rabbit/adapters/amqp-event-publisher";
+import { publisher } from "@src/infrastructure/rabbitmq/adapters/amqp-event-publisher";
 import { scheduleLogger } from "../scheduler";
 
 async function expiredLeadTask() {

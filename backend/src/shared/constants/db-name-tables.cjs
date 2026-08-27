@@ -9,6 +9,7 @@ const dbNameTables = {
   leads: "leads",
   subscriptions: "subscriptions",
   mixeiroHasSubscription: "mixeiro_has_subscription",
+  verificationCode: "verification_codes",
 };
 
 module.exports = { dbNameTables };

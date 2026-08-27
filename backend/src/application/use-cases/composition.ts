@@ -31,6 +31,10 @@ import { SequelizeZoneRepository } from "@src/infrastructure/sequelize/repositor
 import { GetZoneUseCase } from "./zones/get-zone.use-case.js";
 import { ListZoneUseCase } from "./zones/list-zone.use-case.js";
 import { ListZonePaginatedUseCase } from "./zones/list-zone-paginated.use-case.js";
+import { SequelizeVerificationCodeRepository } from "@src/infrastructure/sequelize/repositories/verification-code.repository.impl.js";
+import { ValidateVerificationCodeUseCase } from "./verification-code/validate-verification-code.use-case.js";
+import { GenerateVerificationCodeUseCase } from "./verification-code/generate-verification-code.use-case.js";
+import { IncrementSubscriptionPointUseCase } from "./mixeiro-subscriptions/increment-subscription-point.use-case.js";
 
 const bisnoRepository = new SequelizeBisnoRepository();
 const mixeiroRepository = new SequelizeMixeiroRepository();
@@ -40,6 +44,7 @@ const serviceRepository = new SequelizeServiceRepository();
 const leadRepository = new SequelizeLeadRepository();
 const categoryServiceRepository = new SequelizeCategoryServiceRepository();
 const zoneRepository = new SequelizeZoneRepository();
+const verificationCodeRepository = new SequelizeVerificationCodeRepository();
 
 // use-cases
 
@@ -73,6 +78,9 @@ const getSubscriptionByMixeiroIdUseCase = new GetSubscriptionByMixeiroIdUseCase(
 const decrementSubscriptionPointUseCase = new DecrementSubscriptionPointUseCase(
   mixeiroHasSubscriptionRepository,
 );
+const incrementSubscriptionPointUseCase = new IncrementSubscriptionPointUseCase(
+  mixeiroHasSubscriptionRepository,
+);
 
 // Lead
 const createLeadUseCase = new CreateLeadUseCase(leadRepository);
@@ -103,6 +111,14 @@ const listCategoryServicesUseCase = new ListCategoryServicesUseCase(
 const listCategoryServicesPaginatedUseCase =
   new ListCategoryServicesPaginatedUseCase(categoryServiceRepository);
 
+// Verification Code
+const validateVerificationCodeUseCase = new ValidateVerificationCodeUseCase(
+  verificationCodeRepository,
+);
+const generateVerificationCodeUseCase = new GenerateVerificationCodeUseCase(
+  verificationCodeRepository,
+);
+
 export {
   createBisnoUseCase,
   getBisnoUseCase,
@@ -130,4 +146,7 @@ export {
   getZoneUseCase,
   listZonesUseCase,
   listZonesPaginatedUseCase,
+  validateVerificationCodeUseCase,
+  generateVerificationCodeUseCase,
+  incrementSubscriptionPointUseCase,
 };

@@ -1,7 +1,7 @@
-import path from "node:path";
-import env from "@src/config/env.js";
+import env from "@src/config/env";
 import { Sequelize } from "sequelize-typescript";
-import Logger from "@src/infrastructure/pino/logger.js";
+import Logger from "@src/infrastructure/pino/logger";
+import * as models from "@infrastructure/sequelize/models/index";
 
 const sequelizeLogger = Logger.publishTo({ context: "sequelize" });
 
@@ -28,13 +28,14 @@ class Database {
             acquire: 30000,
             idle: 10000,
           },
-          models: [path.resolve(__dirname, "models/**/*.model.ts")],
-          modelMatch: (filename, member) => {
-            const normalize = (str: string) =>
-              str.toLowerCase().replace(/[^a-z0-9]/g, "");
-            const base = filename.substring(0, filename.indexOf(".model"));
-            return normalize(base) === normalize(member);
-          },
+          models: models.allModels,
+          // models: [path.resolve(__dirname, "models/**/*.model.ts")],
+          // modelMatch: (filename, member) => {
+          //   const normalize = (str: string) =>
+          //     str.toLowerCase().replace(/[^a-z0-9]/g, "");
+          //   const base = filename.substring(0, filename.indexOf(".model"));
+          //   return normalize(base) === normalize(member);
+          // },
         });
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);

@@ -5,18 +5,7 @@ import type { ICreateMixeiroPayload } from "@src/shared/events/mixeiro-events.js
 import type { MixeiroRepository } from "@src/domain/repositories/mixeiro.repository.js";
 import type { RequiredNonNullable } from "@src/shared/@types/custom.js";
 
-const MIXEIRO_ATTRIBUTES = [
-  "id",
-  "zoneId",
-  "categoryId",
-  "customName",
-  "bi",
-  "mobile",
-  "hasWhatsapp",
-  "channel",
-  "isActive",
-  "isLocked",
-];
+const MIXEIRO_ATTRIBUTES = ["id", "customName", "mobile", "isActive"];
 
 export class SequelizeMixeiroRepository implements MixeiroRepository {
   async list(options?: FindOptions<MixeiroAttributes>): Promise<Mixeiro[]> {
@@ -55,7 +44,7 @@ export class SequelizeMixeiroRepository implements MixeiroRepository {
       include: params?.include,
       order: params?.order,
       limit: params?.limit,
-      attributes: params?.attributes,
+      attributes: params?.attributes || MIXEIRO_ATTRIBUTES,
     });
   }
 

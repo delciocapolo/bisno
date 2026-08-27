@@ -1,31 +1,36 @@
 import type express from "express";
 import { isDefined } from "@src/shared/utils/index";
 import { serverLogger } from "../../../server";
-import { createMixeiroSubscriptionUseCase } from "@src/application/use-cases/composition";
-import { schemaFormCreateMixeiroSubscription } from "@src/shared/schemas/form-create-mixeiro-subscription";
+import {
+  createMixeiroSubscriptionUseCase,
+  getSubscriptionByMixeiroIdUseCase,
+  incrementSubscriptionPointUseCase,
+} from "@src/application/use-cases/composition";
 import type { IApiResponse } from "@src/shared/@types/api-response";
+import { schemaFormCreateMixeiroSubscription } from "@src/shared/schemas/form-create-mixeiro-subscription";
 
 export const createMixeiroSubscriptionHandler = async (
   req: express.Request,
   res: express.Response,
 ) => {
   try {
-    const payload = await schemaFormCreateMixeiroSubscription.parseAsync({
-      planId: req?.body?.planId,
-      mixeiroId: req?.body?.mixeiroId,
-    });
-
+    const payload = await schemaFormCreateMixeiroSubscription.parseAsync(
+      req?.body || {},
+    );
     serverLogger.info({ payload }, "Received mixeiro subscription data");
+    const mixeiroHasSubscription =
+      await getSubscriptionByMixeiroIdUseCase.execute(payload.mixeiroId);
 
-    const mixeiroSubscription =
+    if (!isDefined(mixeiroHasSubscription)) {
       await createMixeiroSubscriptionUseCase.execute(payload);
-
-    if (!isDefined(mixeiroSubscription)) {
-      throw new Error("Failed to create mixeiro subscription");
+    } else {
+      await incrementSubscriptionPointUseCase.execute(
+        mixeiroHasSubscription.id,
+      );
     }
 
     return res.status(201).json({
-      data: mixeiroSubscription,
+      data: "Data processed",
       meta: { errors: null },
     } satisfies IApiResponse);
   } catch (error) {

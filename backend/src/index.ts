@@ -2,11 +2,11 @@ import "dotenv/config";
 import dbConnection from "./infrastructure/sequelize/connection";
 import Logger from "./infrastructure/pino/logger";
 import env from "./config/env";
-import rabbitConnection from "./infrastructure/rabbit/connection";
+import rabbitConnection from "./infrastructure/rabbitmq/connection";
 import { server, serverLogger } from "./infrastructure/express/server";
 import "@infrastructure/socketio/server";
 import "@src/infrastructure/evolution-api/server";
-import { registerConsumers } from "@src/infrastructure/rabbit/consumers/register-consumers";
+import { registerConsumers } from "@src/infrastructure/rabbitmq/consumers/register-consumers";
 import { registerSchedulers } from "./application/jobs/scheduler";
 
 async function bootstrap() {

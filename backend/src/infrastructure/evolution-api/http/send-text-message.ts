@@ -165,3 +165,47 @@ export async function sendTextMessageBisnoClosedToClient(
     );
   }
 }
+
+interface ISendTextMessageVerificationCode {
+  code: string;
+}
+
+export async function sendTextMessageVerificationCode(
+  mobile: string,
+  instanceName: string,
+  options: ISendTextMessageVerificationCode,
+) {
+  const message = `*${options?.code}* é o seu código de verificação. Para sua segurança, não partilhe este código.`;
+
+  try {
+    const mobileNormalized = normalizeE164(mobile);
+    const response = await fetch(
+      `${evolutionServerUrl}/message/sendText/${instanceName}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: evolutionAuthenticationApiKey,
+        },
+        body: JSON.stringify({
+          number: mobileNormalized,
+          text: message,
+          delay: 800,
+        }),
+      },
+    );
+
+    const data = await response.json();
+    evolutionApiLogger.info(
+      { data: options },
+      "Verification code message sent",
+    );
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    evolutionApiLogger.error(
+      { error: message, data: options },
+      "Failed to send message verification code",
+    );
+  }
+}

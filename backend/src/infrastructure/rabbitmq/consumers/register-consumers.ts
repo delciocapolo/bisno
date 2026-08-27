@@ -15,6 +15,7 @@ import {
   getNextEligibleMixeiroUseCase,
   getServiceUseCase,
   getSubscriptionByMixeiroIdUseCase,
+  incrementSubscriptionPointUseCase,
   listMixeirosUseCase,
 } from "@src/application/use-cases/composition.js";
 import { isDefined } from "@src/shared/utils/index.js";
@@ -32,6 +33,7 @@ import {
   sendTextMessageAboutBisno,
   sendTextMessageBisnoClosedToClient,
   sendTextMessageBisnoClosedToMixeiro,
+  sendTextMessageVerificationCode,
 } from "@src/infrastructure/evolution-api/http/send-text-message.js";
 import { EVOLUTION_INSTANCE_NAMES } from "@src/infrastructure/evolution-api/instances/names.js";
 import { Mixeiro } from "@src/infrastructure/sequelize/models/mixeiro.model.js";
@@ -125,11 +127,11 @@ export async function registerConsumers(): Promise<void> {
     queue: "bisno.notification.send.queue",
     onMessage: async (payload) => {
       for (const lead of payload) {
+        const mixeiro = await getMixeiroByIdUseCase.execute(lead?.mixeiroId);
         const leadFound = await getLeadByIdUseCase.execute(lead.id);
         const bisno = await Bisno.findByPk(lead.bisnoId, {
           include: [Service, Zone],
         });
-        const mixeiro = await getMixeiroByIdUseCase.execute(lead?.mixeiroId);
 
         if (isDefined(leadFound) && isDefined(bisno) && isDefined(mixeiro)) {
           await sendTextMessageAboutBisno(
@@ -390,24 +392,56 @@ export async function registerConsumers(): Promise<void> {
     routingKey: "bisno.points.decrement",
     queue: "bisno.points.decrement.queue",
     onMessage: async (payload) => {
-      const mixeiro = await getMixeiroByIdUseCase.execute(payload?.mixeiroId);
-
-      if (!isDefined(mixeiro)) {
-        return eventConsumerLogger.error({ payload }, "Mixeiro not found");
-      }
-
       const subscription = await getSubscriptionByMixeiroIdUseCase.execute(
-        mixeiro.id,
+        payload?.mixeiroId,
       );
 
       if (!isDefined(subscription)) {
         return eventConsumerLogger.error(
-          { mixeiro },
+          { mixeiroId: payload.mixeiroId },
           "Error while processing Mixeiro's subscription",
         );
       }
 
       await decrementSubscriptionPointUseCase.execute(subscription.id);
+    },
+  });
+
+  await consumer.consume<{ mixeiroId: string }>({
+    routingKey: "bisno.points.increment",
+    queue: "bisno.points.increment.queue",
+    onMessage: async (payload) => {
+      const subscription = await getSubscriptionByMixeiroIdUseCase.execute(
+        payload?.mixeiroId,
+      );
+
+      if (!isDefined(subscription)) {
+        return eventConsumerLogger.error(
+          { mixeiroId: payload?.mixeiroId },
+          "Error while processing Mixeiro's subscription",
+        );
+      }
+
+      await incrementSubscriptionPointUseCase.execute(subscription.id);
+    },
+  });
+
+  await consumer.consume<{ mobile: string; code: string }>({
+    routingKey: "validate.verification-code",
+    queue: "validate.verification-code.queue",
+    onMessage: async (payload) => {
+      if (!payload?.mobile || !payload.code) {
+        return eventConsumerLogger.error(
+          { payload },
+          "Verification code not sent",
+        );
+      }
+
+      await sendTextMessageVerificationCode(
+        payload.mobile,
+        EVOLUTION_INSTANCE_NAMES.mainInstance.name,
+        { code: payload.code },
+      );
     },
   });
 }

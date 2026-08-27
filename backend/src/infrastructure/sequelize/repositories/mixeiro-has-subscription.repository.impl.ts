@@ -9,9 +9,9 @@ import { Rules } from "@src/domain/enums/mixeiro-has-subscription.enum.js";
 
 const MIXEIRO_HAS_SUBSCRIPTION_ATTRIBUTES = [
   "id",
-  "subscriptionId",
-  "mixeiroId",
   "points",
+  "mixeiroId",
+  "subscriptionId",
   "activatedAt",
   "createdAt",
 ];
@@ -51,6 +51,7 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
   ): Promise<MixeiroHasSubscription | null> {
     return await MixeiroHasSubscription.findOne({
       where: { mixeiroId: mixeiroId },
+      order: [["createdAt", "DESC"]],
     });
   }
 
@@ -77,6 +78,7 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
 
     await subscription.update({
       points: plan.points,
+      subscriptionId: plan.get("id"),
     });
 
     return true;

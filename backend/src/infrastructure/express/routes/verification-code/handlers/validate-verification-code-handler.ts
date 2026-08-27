@@ -1,23 +1,23 @@
 import z from "zod";
 import type express from "express";
-import { schemaFormCreateBisno } from "@src/shared/schemas/form-create-bisno.js";
-import { publisher } from "@src/infrastructure/rabbitmq/adapters/amqp-event-publisher.js";
-import type { IApiResponse } from "@src/shared/@types/api-response.js";
 import { serverLogger } from "@src/infrastructure/express/server";
+import type { IApiResponse } from "@src/shared/@types/api-response.js";
+import { schemaFormValidateVerificationCode } from "@src/shared/schemas/form-validate-verification-code";
+import { validateVerificationCodeUseCase } from "@src/application/use-cases/composition";
 
-export const createBisnoHandler = async (
+export const validateVerificationCodeHandler = async (
   req: express.Request,
   res: express.Response,
 ) => {
   try {
-    const bisno = await schemaFormCreateBisno.parseAsync(req?.body || {});
-    serverLogger.info({ bisno }, "Received bisno data");
-    await publisher.publish({
-      routingKey: "bisno.order.created",
-      payload: bisno,
-    });
-    return res.status(201).json({
-      data: bisno,
+    const payload = await schemaFormValidateVerificationCode.parseAsync(
+      req?.query || {},
+    );
+    serverLogger.info({ payload }, "Received verification code data");
+    const verificationCode =
+      await validateVerificationCodeUseCase.execute(payload);
+    return res.status(200).json({
+      data: verificationCode,
       meta: { errors: null },
     } satisfies IApiResponse);
   } catch (error) {
@@ -38,7 +38,8 @@ export const createBisnoHandler = async (
         errors: [
           {
             field: undefined,
-            error: "An unexpected error occurred while processing bisno data",
+            error:
+              "An unexpected error occurred while validating verification code data",
           },
         ],
       },

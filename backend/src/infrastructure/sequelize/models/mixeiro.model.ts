@@ -41,6 +41,8 @@ type MixeiroCreationAttributes = Optional<
   | "deletedAt"
   | "fullName"
   | "verifiedAt"
+  | "email"
+  | "password"
   | "isLocked"
   | "isActive"
   | "hasWhatsapp"
@@ -75,16 +77,16 @@ class Mixeiro extends Model<MixeiroAttributes, MixeiroCreationAttributes> {
 
   @Column({
     unique: true,
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   })
-  declare email: string;
+  declare email: string | null;
 
   @Column({
+    allowNull: true,
     type: DataTypes.STRING,
-    allowNull: false,
   })
-  declare password: string;
+  declare password: string | null;
 
   @Column({
     unique: true,

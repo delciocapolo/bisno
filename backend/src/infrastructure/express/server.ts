@@ -12,6 +12,7 @@ import { mixeiroSubscriptionRoutes } from "./routes/mixeiros-subscription/index.
 import { serviceRoutes } from "./routes/services/index.js";
 import { categoryServiceRoutes } from "./routes/category-service/index.js";
 import { zonesRoutes } from "./routes/zones/index.js";
+import { verificationCodeRoutes } from "./routes/verification-code/index.js";
 
 const app = express();
 const server = createServer(app);
@@ -30,6 +31,7 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/zones", zonesRoutes);
 app.use("/api/category-services", categoryServiceRoutes);
 app.use("/api/mixeiro-subscriptions", mixeiroSubscriptionRoutes);
+app.use("/api/verification-code", verificationCodeRoutes);
 app.use("/api/health", healthRoutes);
 
 export { server, serverLogger };

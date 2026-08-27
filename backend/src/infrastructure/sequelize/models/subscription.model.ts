@@ -7,12 +7,13 @@ interface SubscriptionAttributes {
   name: string;
   slug: string;
   points: number;
+  priority: number;
   isActive: boolean;
 }
 
 type SubscriptionCreationAttributes = Optional<
   SubscriptionAttributes,
-  "id" | "isActive"
+  "id" | "priority" | "isActive"
 >;
 
 @Table({
@@ -53,6 +54,14 @@ class Subscription extends Model<
     type: DataTypes.INTEGER,
   })
   declare points: number;
+
+  @Column({
+    defaultValue: 1,
+    allowNull: false,
+    validate: { min: 0 },
+    type: DataTypes.INTEGER,
+  })
+  declare priority: number;
 
   @Column({
     allowNull: false,

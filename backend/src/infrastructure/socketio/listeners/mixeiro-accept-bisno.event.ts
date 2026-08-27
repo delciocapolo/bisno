@@ -1,5 +1,5 @@
 import { isDefined } from "@src/shared/utils";
-import { publisher } from "@src/infrastructure/rabbit/adapters/amqp-event-publisher";
+import { publisher } from "@src/infrastructure/rabbitmq/adapters/amqp-event-publisher";
 import type { IMessageUpsertEvent } from "@src/shared/events/evolution-events";
 import { normalizeJid } from "@src/infrastructure/evolution-api/utils";
 import { EVOLUTION_INSTANCE_NAMES } from "@src/infrastructure/evolution-api/instances/names";

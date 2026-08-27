@@ -9,18 +9,21 @@ const SEEDS = [
     name: "Básico",
     slug: "basico",
     points: 50,
+    piority: 3,
     is_active: true,
   },
   {
     name: "Standard",
     slug: "standard",
     points: 150,
+    piority: 2,
     is_active: true,
   },
   {
     name: "Premium",
     slug: "premium",
     points: 500,
+    piority: 1,
     is_active: true,
   },
 ];
