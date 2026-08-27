@@ -1,5 +1,6 @@
 import type { IFilter } from "@src/shared/@types/filter";
 import type { IChannel } from "./types";
+import { handleResponseErrorMessage } from "../utils";
 
 export const CHANNELS: IChannel[] = [
   {
@@ -16,7 +17,7 @@ export const channelService = {
     try {
       return CHANNELS.slice(0, filters?.pageSize);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
 };

@@ -3,6 +3,7 @@ import type { IBisno, IBisnoList } from "./types";
 import type { IFormCreateBisno } from "@src/shared/schemas/bisno";
 import { client } from "@src/lib/client";
 import type { IFilter } from "@src/shared/@types/filter";
+import { handleResponseErrorMessage } from "../utils";
 
 export const bisnoService = {
   create: async (payload: IFormCreateBisno) => {
@@ -13,7 +14,7 @@ export const bisnoService = {
       );
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
   list: async (filters?: Partial<IFilter & {}>) => {
@@ -23,7 +24,7 @@ export const bisnoService = {
       });
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
 };

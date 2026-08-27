@@ -2,6 +2,7 @@ import type { IApiResponse } from "@src/shared/@types/api";
 import type { IZone } from "./types";
 import type { IFilter } from "@src/shared/@types/filter";
 import { client } from "@src/lib/client";
+import { handleResponseErrorMessage } from "../utils";
 
 export const ZONES: IZone[] = [
   {
@@ -98,7 +99,7 @@ export const zoneService = {
       });
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
   getZone: async ({ zoneId }: { zoneId: string }) => {
@@ -108,7 +109,7 @@ export const zoneService = {
       );
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
 };

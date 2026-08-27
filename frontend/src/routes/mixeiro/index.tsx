@@ -3,12 +3,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import Navbar, { NavbarHeightElement } from "@src/components/navbar";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { cn, formatMobile } from "@src/lib/utils";
-import { formCreateMixeiroSchema } from "@src/lib/schemas";
 import FloatingWhatsappButton from "@src/components/floating-whatsapp-button";
 import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@src/services/category/index.service";
 import { zoneService } from "@src/services/zones/index.service";
 import { channelService } from "@src/services/channels/index.service";
+import { schemaFormCreateMixeiro } from "@src/shared/schemas/mixeiro";
+import { mixeiroService } from "@src/services/mixeiro/index.service";
 
 export const Route = createFileRoute("/mixeiro/")({
   component: RouteComponent,
@@ -58,10 +59,8 @@ function RouteComponent() {
       zoneId: "",
       channel: "whatsapp" as (typeof CANAIS)[number]["value"],
     },
-    validators: { onSubmit: formCreateMixeiroSchema },
-    onSubmit: async ({ value }) => {
-      console.log(value);
-    },
+    validators: { onSubmit: schemaFormCreateMixeiro },
+    onSubmit: ({ value }) => mixeiroService.createMixeiro(value),
   });
 
   return (
@@ -191,7 +190,7 @@ function RouteComponent() {
                         id={field.name}
                         name="mobile"
                         type="text"
-                        aria-label="Numero de telefone do mixeiro"
+                        aria-label="Número de telefone do mixeiro"
                         value={formatMobile(field.state.value)}
                         onChange={(e) => {
                           const mobileHandled = e.target.value

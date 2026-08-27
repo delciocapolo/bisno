@@ -9,7 +9,7 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [devtools(), tailwindcss(), nitro(), tanstackStart(), viteReact()],
   server: {
-    allowedHosts: ["www.bisno.ao"],
+    allowedHosts: ["www.bisno.ao", "bisno.ao"],
   },
 });
 

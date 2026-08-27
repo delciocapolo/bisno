@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BisnoIndexRouteImport } from './routes/bisno/index'
 import { Route as MixeiroIndexRouteImport } from './routes/mixeiro/index'
+import { Route as RecargaPontosIndexRouteImport } from './routes/recarga-pontos/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const MixeiroIndexRoute = MixeiroIndexRouteImport.update({
   path: '/mixeiro/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecargaPontosIndexRoute = RecargaPontosIndexRouteImport.update({
+  id: '/recarga-pontos/',
+  path: '/recarga-pontos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bisno/': typeof BisnoIndexRoute
   '/mixeiro/': typeof MixeiroIndexRoute
+  '/recarga-pontos/': typeof RecargaPontosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bisno': typeof BisnoIndexRoute
   '/mixeiro': typeof MixeiroIndexRoute
+  '/recarga-pontos': typeof RecargaPontosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bisno/': typeof BisnoIndexRoute
   '/mixeiro/': typeof MixeiroIndexRoute
+  '/recarga-pontos/': typeof RecargaPontosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bisno/' | '/mixeiro/'
+  fullPaths: '/' | '/bisno/' | '/mixeiro/' | '/recarga-pontos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bisno' | '/mixeiro'
-  id: '__root__' | '/' | '/bisno/' | '/mixeiro/'
+  to: '/' | '/bisno' | '/mixeiro' | '/recarga-pontos'
+  id: '__root__' | '/' | '/bisno/' | '/mixeiro/' | '/recarga-pontos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BisnoIndexRoute: typeof BisnoIndexRoute
   MixeiroIndexRoute: typeof MixeiroIndexRoute
+  RecargaPontosIndexRoute: typeof RecargaPontosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MixeiroIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recarga-pontos/': {
+      id: '/recarga-pontos/'
+      path: '/recarga-pontos'
+      fullPath: '/recarga-pontos/'
+      preLoaderRoute: typeof RecargaPontosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,16 +106,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BisnoIndexRoute: BisnoIndexRoute,
   MixeiroIndexRoute: MixeiroIndexRoute,
+  RecargaPontosIndexRoute: RecargaPontosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

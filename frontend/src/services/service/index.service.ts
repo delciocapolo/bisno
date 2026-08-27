@@ -2,6 +2,7 @@ import type { IApiResponse } from "@src/shared/@types/api";
 import type { ICategoryService } from "./types";
 import type { IFilter } from "@src/shared/@types/filter";
 import { client } from "@src/lib/client";
+import { handleResponseErrorMessage } from "../utils";
 
 export const CATEGORIES = [
   {
@@ -106,7 +107,7 @@ export const serviceService = {
       );
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
   getService: async ({ serviceId }: { serviceId: string }) => {
@@ -116,7 +117,7 @@ export const serviceService = {
       >(`/services/${serviceId}`);
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Erro Desconhecido");
+      throw new Error(handleResponseErrorMessage(error));
     }
   },
 };
