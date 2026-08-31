@@ -1,7 +1,7 @@
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { formRechargePointSchema } from "./schema";
 import { cn, defaultValue } from "@src/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Icon } from "@iconify/react";
 import { Activity, useEffect, useRef, useState } from "react";
 import { verificationCodeService } from "@src/services/verification-code/index.service";
@@ -11,6 +11,7 @@ import type {
 } from "@src/shared/schemas/verification-code";
 import { toast } from "sonner";
 import { mixeiroService } from "@src/services/mixeiro/index.service";
+import { subscriptionService } from "@src/services/subscriptions/index.service";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
@@ -178,7 +179,6 @@ export default function RechargePointComponent() {
   });
   const {
     mutate: validateVerificationCode,
-    data: validatedVerificationCodeData,
     isPending: isValidatingVerificationCode,
   } = useMutation({
     mutationFn: async (payload: IFormValidateVerificationCode) => {
@@ -189,18 +189,24 @@ export default function RechargePointComponent() {
       if (!data) return;
       setStep("subscription");
       resetVerificationCodeData();
-      getMixeiro({ mobile: `+244${form.state.values.identification}` });
+      getMixeiro({ mobile: form.state.values.identification });
     },
     onError: (error) => {
       toast.error(error.message, { position: "top-right" });
     },
   });
-  const {
-    data: mixeiroData,
-    mutate: getMixeiro,
-    isPending: isLoadingMixeiro,
-  } = useMutation({
+  const { data: mixeiroData, mutate: getMixeiro } = useMutation({
     mutationFn: mixeiroService.getMixeiro,
+    onSuccess: (data) => {
+      if (!data.data?.id) {
+        throw new Error("Mixeiro não encontrado");
+      }
+      form.setFieldValue("mixeiroId", data.data.id);
+    },
+  });
+  const { data: subscriptions } = useQuery({
+    queryKey: ["subscriptions"],
+    queryFn: () => subscriptionService.list(),
   });
   const form = useAppForm({
     defaultValues: {
@@ -350,8 +356,13 @@ export default function RechargePointComponent() {
                     <h1 className="text-body-18 font-heading text-background uppercase leading-normal">
                       {defaultValue(mixeiroData?.data?.customName)}
                     </h1>
-                    <p className="text-body-12 font-semibold text-background">
-                      Canalizador · Viana · saldo actual: 12 pontos
+                    <p className="text-body-14 font-semibold text-background">
+                      {defaultValue(mixeiroData?.data?.categoryService.name)}{" "}
+                      {" · "}
+                      {defaultValue(mixeiroData?.data?.zone.name)} · saldo
+                      actual:{" "}
+                      {defaultValue(mixeiroData?.data?.subscription.points, 0)}{" "}
+                      pontos
                     </p>
                   </div>
                 </div>
@@ -373,6 +384,52 @@ export default function RechargePointComponent() {
             </div>
           )}
         </form.Field>
+
+        <Activity mode={mixeiroData?.data?.id ? "visible" : "hidden"}>
+          <form.Field name="identification">
+            {(field) => (
+              <div className="w-full p-5 bg-foreground shadow-border-style space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="bg-primary text-primary py-1 px-2 tracking-wider font-semibold font-heading text-body-16">
+                    02
+                  </span>
+                  <h1 className="text-background leading-normal uppercase font-heading text-headline-20 font-normal!">
+                    Escolhe o plano
+                  </h1>
+                </div>
+
+                <ul className="">
+                  {subscriptions?.data?.map((subscription, index) => {
+                    const halfPrice = subscription.price / subscription.points;
+
+                    return (
+                      <li
+                        key={index}
+                        className="flex items-center border-"
+                        onClick={() => field.setValue(subscription.id)}
+                      >
+                        <div className="flex-1">
+                          <h1 className="text-body-16 font-heading uppercase">
+                            {subscription.name}
+                          </h1>
+                          <p className="text-body-14">
+                            {subscription.points} pontos · {halfPrice}kz / ponto
+                          </p>
+                        </div>
+                        <div className="flex-none w-fit">
+                          <h1 className="text-body-16 font-heading uppercase">
+                            {subscription.price}
+                          </h1>
+                          <p className="text-body-14">kz</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </form.Field>
+        </Activity>
       </form>
     </div>
   );

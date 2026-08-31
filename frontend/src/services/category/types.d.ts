@@ -1,7 +1,6 @@
-export interface IServiceCategory {
+export interface ICategoryService {
   id: string;
   name: string;
   slug: string;
-  icon: string;
   isActive: boolean;
 }

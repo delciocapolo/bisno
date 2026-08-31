@@ -131,6 +131,7 @@
 
   /* Auxiliares */
   --accent-900: oklch(67.409% 0.19094 42.845);
+  --border-shadow: oklch(18.946% 0.01328 77.808);
 }
 
 .dark {

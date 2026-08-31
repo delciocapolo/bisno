@@ -1,8 +1,8 @@
-import type { IApiResponse } from "@src/shared/@types/api";
-import type { IFilter } from "@src/shared/@types/filter";
 import { client } from "@src/lib/client";
-import type { ICategoryService } from "../service/types";
 import { handleResponseErrorMessage } from "../utils";
+import type { IFilter } from "@src/shared/@types/filter";
+import type { IApiResponse } from "@src/shared/@types/api";
+import type { ICategoryService } from "./types";
 
 export const categoryService = {
   list: async (filters?: Partial<IFilter & { categoryName: string }>) => {

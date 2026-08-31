@@ -1,4 +1,4 @@
-export interface ICategoryService {
+export interface IService {
   id: string;
   name: string;
   slug: string;

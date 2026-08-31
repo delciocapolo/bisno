@@ -11,7 +11,6 @@ import Footer from "@src/components/footer";
 import { useQuery } from "@tanstack/react-query";
 import { serviceService } from "@src/services/service/index.service";
 import { bisnoService } from "@src/services/bisno/index.service";
-import { format } from "date-fns";
 import { updateStepWhatState } from "@src/components/create-bisno/store";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -46,11 +45,11 @@ function Home() {
     queryKey: ["bisnos"],
     queryFn: async () => {
       let { data } = await bisnoService.list({ pageSize: 12 });
-      data = data.filter(
-        (bisno) =>
-          format(bisno.createdAt, "yyyy-MM-dd") ===
-          format(new Date(), "yyyy-MM-dd"),
-      );
+      // data = data.filter(
+      //   (bisno) =>
+      //     format(bisno.createdAt, "yyyy-MM-dd") ===
+      //     format(new Date(), "yyyy-MM-dd"),
+      // );
       return data;
     },
     staleTime: 1000 * 60 * 1, // 1 minutes
