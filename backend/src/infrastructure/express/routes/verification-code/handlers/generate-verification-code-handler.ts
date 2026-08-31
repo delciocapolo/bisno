@@ -37,7 +37,7 @@ export const generateVerificationCodeHandler = async (
     } satisfies IApiResponse);
   } catch (error: any) {
     serverLogger.error(
-      { error },
+      { error: error.message },
       "Error occurred while generating verification code",
     );
     if (error instanceof z.ZodError) {

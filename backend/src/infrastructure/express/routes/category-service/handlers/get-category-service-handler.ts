@@ -1,31 +1,30 @@
 import z from "zod";
 import type express from "express";
 import { serverLogger } from "../../../server";
-import { validatePaginationFilters } from "@src/shared/schemas/validate-pagination-filters.js";
+import { OBJECT_ID_VALIDATOR } from "@src/shared/schemas/commons";
 import type { IApiResponse } from "@src/shared/@types/api-response.js";
-import { listCategoryServicesPaginatedUseCase } from "@src/application/use-cases/composition";
-
-// TODO: falta implementar
+import { getCategoryServiceByIdUseCase } from "@src/application/use-cases/composition";
 
 export const getCategoryServicesHandler = async (
   req: express.Request,
   res: express.Response,
 ) => {
   try {
-    const filters = await validatePaginationFilters.parseAsync(
-      req.query?.filters || {},
+    const payload = await z
+      .object({ categoryId: OBJECT_ID_VALIDATOR })
+      .parseAsync(req.params || {});
+
+    const categoryService = await getCategoryServiceByIdUseCase.execute(
+      payload.categoryId,
     );
 
-    const { data, ...paginated } =
-      await listCategoryServicesPaginatedUseCase.execute(filters);
-
     return res.status(200).json({
-      data: data,
-      meta: { errors: null, pagination: paginated },
+      data: categoryService,
+      meta: { errors: null },
     } satisfies IApiResponse);
-  } catch (error) {
+  } catch (error: any) {
     serverLogger.error(
-      { error },
+      { error: error.message },
       "Error occurred while processing category service list",
     );
     if (error instanceof z.ZodError) {

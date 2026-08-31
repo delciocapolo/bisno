@@ -3,13 +3,7 @@ import type { FindOptions } from "sequelize";
 import type { CategoryServiceAttributes } from "../models/category-service.model";
 import { CategoryService } from "../models/category-service.model";
 
-const CATEGORY_SERVICE_ATTRIBUTES = [
-  "id",
-  "name",
-  "slug",
-  "isActive",
-  "createdAt",
-];
+const CATEGORY_SERVICE_ATTRIBUTES = ["id", "name", "slug", "isActive"];
 
 export class SequelizeCategoryServiceRepository implements CategoryServiceRepository {
   async list(

@@ -20,8 +20,11 @@ export const validateVerificationCodeHandler = async (
       data: verificationCode,
       meta: { errors: null },
     } satisfies IApiResponse);
-  } catch (error) {
-    serverLogger.error({ error }, "Error occurred while processing bisno data");
+  } catch (error: any) {
+    serverLogger.error(
+      { error: error.message },
+      "Error occurred while processing bisno data",
+    );
     if (error instanceof z.ZodError) {
       const errors = error.issues.map((issue) => ({
         field: issue?.path?.at(0),

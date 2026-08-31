@@ -2,7 +2,7 @@ import type { CategoryService } from "@src/infrastructure/sequelize/models/categ
 import type { SequelizeCategoryServiceRepository } from "@src/infrastructure/sequelize/repositories/category-service.repository.impl";
 import type { UseCaseAbstract } from "@src/shared/@types/use-case.js";
 
-export class GetCategoryServiceUseCase implements UseCaseAbstract<CategoryService | null> {
+export class GetCategoryServiceByIdUseCase implements UseCaseAbstract<CategoryService | null> {
   constructor(
     private readonly repository: SequelizeCategoryServiceRepository,
   ) {}

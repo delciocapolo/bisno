@@ -23,7 +23,7 @@ import { ListLeadPaginatedUseCase } from "./lead/list-lead-paginated.use-case.js
 import { ListBisnoPaginatedUseCase } from "./bisno/list-bisno-paginated.use-case.js";
 import { ListMixeiroPaginatedUseCase } from "./mixeiro/list-mixeiro-paginated.use-case.js";
 import { ListServicePaginatedUseCase } from "./service/list-services-paginated.use-case.js";
-import { GetCategoryServiceUseCase } from "./category-service/get-category-service.use-case.js";
+import { GetCategoryServiceByIdUseCase } from "./category-service/get-category-service-by-id.use-case.js";
 import { SequelizeCategoryServiceRepository } from "@src/infrastructure/sequelize/repositories/category-service.repository.impl.js";
 import { ListCategoryServicesUseCase } from "./category-service/list-category-service.use-case.js";
 import { ListCategoryServicesPaginatedUseCase } from "./category-service/list-category-services-paginated.use-case.js";
@@ -35,6 +35,10 @@ import { SequelizeVerificationCodeRepository } from "@src/infrastructure/sequeli
 import { ValidateVerificationCodeUseCase } from "./verification-code/validate-verification-code.use-case.js";
 import { GenerateVerificationCodeUseCase } from "./verification-code/generate-verification-code.use-case.js";
 import { IncrementSubscriptionPointUseCase } from "./mixeiro-subscriptions/increment-subscription-point.use-case.js";
+import { GetSubscriptionByIdUseCase } from "./subscription/get-subscription-by-id.use-case.js";
+import { SequelizeSubscriptionRepository } from "@src/infrastructure/sequelize/repositories/subscription.repository.impl.js";
+import { ListSubscriptionUseCase } from "./subscription/list-service.use-case.js";
+import { ListSubscriptionPaginatedUseCase } from "./subscription/list-services-paginated.use-case.js";
 
 const bisnoRepository = new SequelizeBisnoRepository();
 const mixeiroRepository = new SequelizeMixeiroRepository();
@@ -45,6 +49,7 @@ const leadRepository = new SequelizeLeadRepository();
 const categoryServiceRepository = new SequelizeCategoryServiceRepository();
 const zoneRepository = new SequelizeZoneRepository();
 const verificationCodeRepository = new SequelizeVerificationCodeRepository();
+const subscriptionRepository = new SequelizeSubscriptionRepository();
 
 // use-cases
 
@@ -102,7 +107,7 @@ const listZonesUseCase = new ListZoneUseCase(zoneRepository);
 const listZonesPaginatedUseCase = new ListZonePaginatedUseCase(zoneRepository);
 
 // Category Service
-const getCategoryServiceUseCase = new GetCategoryServiceUseCase(
+const getCategoryServiceByIdUseCase = new GetCategoryServiceByIdUseCase(
   categoryServiceRepository,
 );
 const listCategoryServicesUseCase = new ListCategoryServicesUseCase(
@@ -117,6 +122,17 @@ const validateVerificationCodeUseCase = new ValidateVerificationCodeUseCase(
 );
 const generateVerificationCodeUseCase = new GenerateVerificationCodeUseCase(
   verificationCodeRepository,
+);
+
+// Subscription
+const getSubscriptionByIdUseCase = new GetSubscriptionByIdUseCase(
+  subscriptionRepository,
+);
+const listSubscriptionUseCase = new ListSubscriptionUseCase(
+  subscriptionRepository,
+);
+const listSubscriptionPaginatedUseCase = new ListSubscriptionPaginatedUseCase(
+  subscriptionRepository,
 );
 
 export {
@@ -140,7 +156,7 @@ export {
   listBisnosPaginatedUseCase,
   listMixeirosPaginatedUseCase,
   listServicesPaginatedUseCase,
-  getCategoryServiceUseCase,
+  getCategoryServiceByIdUseCase,
   listCategoryServicesUseCase,
   listCategoryServicesPaginatedUseCase,
   getZoneUseCase,
@@ -149,4 +165,7 @@ export {
   validateVerificationCodeUseCase,
   generateVerificationCodeUseCase,
   incrementSubscriptionPointUseCase,
+  getSubscriptionByIdUseCase,
+  listSubscriptionUseCase,
+  listSubscriptionPaginatedUseCase,
 };

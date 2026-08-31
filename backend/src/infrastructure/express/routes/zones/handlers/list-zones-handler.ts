@@ -21,8 +21,11 @@ export const listZonesHandler = async (
       data: data,
       meta: { errors: null, pagination: paginated },
     } satisfies IApiResponse);
-  } catch (error) {
-    serverLogger.error({ error }, "Error occurred while processing zone list");
+  } catch (error: any) {
+    serverLogger.error(
+      { error: error.message },
+      "Error occurred while processing zone list",
+    );
     if (error instanceof z.ZodError) {
       const errors = error.issues.map((issue) => ({
         field: issue?.path?.at(0),

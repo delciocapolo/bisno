@@ -14,6 +14,8 @@ const SEEDS = [
   { name: "Transportes", slug: "transportes", is_active: true },
   { name: "Serviços Domésticos", slug: "servicos-domesticos", is_active: true },
   { name: "Beleza e Estética", slug: "beleza-estetica", is_active: true },
+  { name: "Educação", slug: "educacao", is_active: true },
+  { name: "Restauração", slug: "restauracao", is_active: true },
 ];
 
 /** @type {import('sequelize-cli').Migration} */

@@ -42,9 +42,9 @@ const createMixeiroHandler = async (
       data: mixeiro,
       meta: { errors: null },
     } satisfies IApiResponse);
-  } catch (error) {
+  } catch (error: any) {
     serverLogger.error(
-      { error: (error as Error).message },
+      { error: error.message },
       "Error occurred while processing mixeiro data",
     );
 

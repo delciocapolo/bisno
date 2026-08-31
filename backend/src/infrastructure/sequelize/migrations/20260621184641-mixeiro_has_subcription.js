@@ -41,8 +41,8 @@ module.exports = {
         onDelete: "RESTRICT",
       },
       points: {
-        allowNull: false,
         defaultValue: 0,
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       activated_at: {

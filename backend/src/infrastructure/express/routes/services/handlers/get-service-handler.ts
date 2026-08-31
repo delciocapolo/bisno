@@ -19,9 +19,9 @@ export const getServicesHandler = async (
       data: data,
       meta: { errors: null },
     } satisfies IApiResponse);
-  } catch (error) {
+  } catch (error: any) {
     serverLogger.error(
-      { error },
+      { error: error.message },
       "Error occurred while processing service data",
     );
     if (error instanceof z.ZodError) {

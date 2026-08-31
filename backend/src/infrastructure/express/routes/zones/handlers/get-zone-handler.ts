@@ -17,8 +17,11 @@ export const getZoneHandler = async (
       data: data,
       meta: { errors: null },
     } satisfies IApiResponse);
-  } catch (error) {
-    serverLogger.error({ error }, "Error occurred while processing zone data");
+  } catch (error: any) {
+    serverLogger.error(
+      { error: error.message },
+      "Error occurred while processing zone data",
+    );
     if (error instanceof z.ZodError) {
       const errors = error.issues.map((issue) => ({
         field: issue?.path?.at(0),

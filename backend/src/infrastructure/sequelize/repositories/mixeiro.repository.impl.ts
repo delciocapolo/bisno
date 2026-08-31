@@ -1,11 +1,17 @@
 import { Mixeiro } from "../models/mixeiro.model.js";
 import type { FindOptions } from "sequelize";
 import type { MixeiroAttributes } from "../models/mixeiro.model.js";
+import type { RequiredNonNullable } from "@src/shared/@types/custom.js";
 import type { ICreateMixeiroPayload } from "@src/shared/events/mixeiro-events.js";
 import type { MixeiroRepository } from "@src/domain/repositories/mixeiro.repository.js";
-import type { RequiredNonNullable } from "@src/shared/@types/custom.js";
 
-const MIXEIRO_ATTRIBUTES = ["id", "customName", "mobile", "isActive"];
+const MIXEIRO_ATTRIBUTES = [
+  "id",
+  "customName",
+  "mobile",
+  "isActive",
+  "verifiedAt",
+];
 
 export class SequelizeMixeiroRepository implements MixeiroRepository {
   async list(options?: FindOptions<MixeiroAttributes>): Promise<Mixeiro[]> {

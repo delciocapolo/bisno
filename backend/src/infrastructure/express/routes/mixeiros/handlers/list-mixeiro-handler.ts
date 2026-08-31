@@ -21,9 +21,9 @@ export const listMixeiroHandler = async (
       data: data,
       meta: { errors: null, pagination: paginated },
     } satisfies IApiResponse);
-  } catch (error) {
+  } catch (error: any) {
     serverLogger.error(
-      { error },
+      { error: error.message },
       "Error occurred while processing mixeiro list",
     );
     if (error instanceof z.ZodError) {
