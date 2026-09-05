@@ -22,3 +22,12 @@ export const getFirstAndLastName = (name?: string): string => {
 
 export const formatMobile = (num: string) =>
   String(num).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+export const formatToKwanza = (valor: number): string => {
+  return valor.toLocaleString("pt-AO", {
+    style: "currency",
+    currency: "AOA",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
