@@ -9,7 +9,6 @@ import {
   getMixeiroByUseCase,
   getSubscriptionByMixeiroIdUseCase,
 } from "@src/application/use-cases/composition";
-import { MixeiroHasSubscription } from "@src/infrastructure/sequelize/models/mixeiro-has-subscription.model";
 
 export const getMixeiroHandler = async (
   req: express.Request,

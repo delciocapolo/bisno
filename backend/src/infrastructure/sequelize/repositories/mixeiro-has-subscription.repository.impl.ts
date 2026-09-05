@@ -52,7 +52,8 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
     return await MixeiroHasSubscription.findOne({
       where: { mixeiroId: mixeiroId },
       order: [["createdAt", "DESC"]],
-      attributes: MIXEIRO_HAS_SUBSCRIPTION_ATTRIBUTES,
+      // attributes: MIXEIRO_HAS_SUBSCRIPTION_ATTRIBUTES,
+      attributes: ["points", "activatedAt"],
     });
   }
 

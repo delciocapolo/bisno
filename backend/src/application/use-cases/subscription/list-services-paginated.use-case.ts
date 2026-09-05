@@ -23,6 +23,7 @@ export class ListSubscriptionPaginatedUseCase implements UseCaseAbstract<IListSu
       const pagination = new Pagination(Subscription);
       return await pagination.paginate(filters, {
         attributes: ["id", "name", "slug", "price", "points", "isActive"],
+        order: [["priority", "DESC"]],
         where: filters?.subscriptionName
           ? { name: { [Op.like]: `%${filters?.subscriptionName}%` } }
           : undefined,
