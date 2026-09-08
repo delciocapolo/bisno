@@ -1,4 +1,8 @@
-import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import {
+  createFormHook,
+  createFormHookContexts,
+  useSelector,
+} from "@tanstack/react-form";
 import { formRechargePointSchema } from "./schema";
 import { cn, defaultValue, formatToKwanza } from "@src/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -12,6 +16,7 @@ import type {
 import { toast } from "sonner";
 import { mixeiroService } from "@src/services/mixeiro/index.service";
 import { subscriptionService } from "@src/services/subscriptions/index.service";
+import { mixeiroSubscriptionService } from "@src/services/mixeiro-subscription/index.service";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
@@ -156,13 +161,16 @@ function OTPFieldComponent({
 export default function RechargePointComponent() {
   const [step, setStep] = useState<StepKey>("identification");
 
-  // const {
-  //   data: mixeiroSubscriptionData,
-  //   mutate: createMixeiroSubscription,
-  //   isPending: isMixeiroSubscriptionLoading,
-  // } = useMutation({
-  //   mutationFn: mixeiroSubscriptionService.create,
-  // });
+  const {
+    data: mixeiroSubscriptionData,
+    mutate: createMixeiroSubscription,
+    isPending: isLoadingMixeiroSubscription,
+  } = useMutation({
+    mutationFn: mixeiroSubscriptionService.create,
+    onSuccess: () => {
+      getMixeiro({ mobile: currentIdentification });
+    },
+  });
   const {
     data: verificationCodeData,
     reset: resetVerificationCodeData,
@@ -189,7 +197,7 @@ export default function RechargePointComponent() {
       if (!data) return;
       setStep("subscription");
       resetVerificationCodeData();
-      getMixeiro({ mobile: form.state.values.identification });
+      getMixeiro({ mobile: currentIdentification });
     },
     onError: (error) => {
       toast.error(error.message, { position: "top-right" });
@@ -210,17 +218,31 @@ export default function RechargePointComponent() {
   });
   const form = useAppForm({
     defaultValues: {
-      identification: "",
-      mixeiroId: "",
       planId: "",
+      mixeiroId: "",
+      identification: "",
     },
     validators: { onSubmit: stepSchemas[step] as any },
     onSubmit: async ({ value }) => {
-      if (step === "identification") {
-        generateVerificationCode({ mobile: `+244${value.identification}` });
-      }
+      createMixeiroSubscription(value);
     },
   });
+  const currentPlanId = useSelector(form.store, (state) => state.values.planId);
+  const currentIdentification = useSelector(
+    form.store,
+    (state) => `+244${state.values.identification}`,
+  );
+  const currentSubscription = subscriptions?.data.find(
+    (subscription) => subscription.id === currentPlanId,
+  );
+
+  const onClickCheckMobile = () => {
+    if (step === "identification") {
+      generateVerificationCode({
+        mobile: currentIdentification,
+      });
+    }
+  };
 
   return (
     <div className="w-full space-y-5">
@@ -279,7 +301,7 @@ export default function RechargePointComponent() {
                   />
                   <button
                     type="button"
-                    onClick={async () => await form.handleSubmit()}
+                    onClick={onClickCheckMobile}
                     className="flex-none w-fit bg-background px-4 text-body-16 font-heading font-normal! text-foreground uppercase flex-center flex-nowrap text-nowrap gap-2"
                   >
                     <Activity
@@ -375,7 +397,7 @@ export default function RechargePointComponent() {
                     onSubmit={(value) => {
                       validateVerificationCode({
                         code: value,
-                        mobile: `+244${form.state.values.identification}`,
+                        mobile: currentIdentification,
                       });
                     }}
                   />
@@ -407,7 +429,7 @@ export default function RechargePointComponent() {
                       subscription.price,
                     ).slice(0, -3);
                     const isCurrentSubscription =
-                      form.state.values.planId === subscription.id;
+                      field.state.value === subscription.id;
 
                     return (
                       <li
@@ -454,20 +476,123 @@ export default function RechargePointComponent() {
           )}
         </form.Field>
 
-        <Activity mode={form.state.values.planId ? "visible" : "hidden"}>
-          <div className="w-full p-5 bg-foreground shadow-border-style space-y-5">
-            <div className="flex items-center gap-3">
-              <span className="bg-primary text-background py-1 px-2 tracking-wider font-semibold font-heading text-body-16">
-                03
-              </span>
-              <h1 className="text-background leading-normal uppercase font-heading text-headline-20 font-normal!">
-                Confirmação
-              </h1>
-            </div>
+        <div className="min-h-75">
+          <Activity
+            mode={
+              currentPlanId?.length > 0 && !mixeiroSubscriptionData
+                ? "visible"
+                : "hidden"
+            }
+          >
+            <div
+              className={cn(
+                "w-full p-5 bg-background shadow-border-style space-y-5",
+                "shadow-[5px_5px_0_var(--primary-accent)]!",
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <span className="bg-primary text-background py-1 px-2 tracking-wider font-semibold font-heading text-body-16">
+                  03
+                </span>
+                <h1 className="text-foreground leading-normal uppercase font-heading text-headline-20 font-normal!">
+                  Confirmação
+                </h1>
+              </div>
 
-            <div className=""></div>
-          </div>
-        </Activity>
+              <div className="space-y-3">
+                <ul className="*:not-last-of-type:border-b *:not-last-of-type:border-b-gray-700 *:not-last-of-type:py-2">
+                  <li className="flex items-center justify-between">
+                    <span className="text-body-14 font-semibold text-gray-300">
+                      Mixeiro
+                    </span>
+                    <span className="text-body-14 font-semibold">
+                      {defaultValue(mixeiroData?.data?.customName)}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-body-14 font-semibold text-gray-300">
+                      Plano
+                    </span>
+                    <span className="text-body-14 font-semibold">
+                      {defaultValue(currentSubscription?.name)}
+                      {" · "}
+                      {defaultValue(currentSubscription?.points)} pontos
+                    </span>
+                  </li>
+                  <li className="flex items-end justify-between">
+                    <span className="text-body-14 font-bold text-primary uppercase tracking-wider">
+                      Total a pagar
+                    </span>
+                    <span className="text-headline-32 font-semibold text-primary">
+                      {formatToKwanza(currentSubscription?.price || 0)}
+                    </span>
+                  </li>
+                </ul>
+
+                <button
+                  type="submit"
+                  className={
+                    "w-full bg-primary text-headline-20 font-normal text-background py-4 uppercase"
+                  }
+                >
+                  <Activity
+                    mode={isLoadingMixeiroSubscription ? "visible" : "hidden"}
+                  >
+                    <Icon icon={"line-md:loading-twotone-loop"} className="" />
+                    {"A Processar..."}
+                  </Activity>
+
+                  <Activity
+                    mode={!isLoadingMixeiroSubscription ? "visible" : "hidden"}
+                  >
+                    Confirmar Recarga
+                  </Activity>
+                </button>
+
+                <p className="text-body-12 font-semibold text-gray-500 text-center">
+                  Pagamento por Multicaixa Express. Os pontos entram na conta em
+                  segundos.
+                </p>
+              </div>
+            </div>
+          </Activity>
+
+          <Activity
+            mode={
+              mixeiroSubscriptionData && mixeiroSubscriptionData.data
+                ? "visible"
+                : "hidden"
+            }
+          >
+            <div className="space-y-5 flex flex-col items-center py-7">
+              <div className="mb-8 max-lg:mb-4 flex-center gap-1 pl-7 pr-3 py-1 max-lg:pl-4 max-lg:py-1 max-lg:pr-1 border-5 border-red-700 w-fit animate-stampIn -rotate-3 bg-foreground">
+                <h1 className="text-headline-32 max-lg:text-headline-40 text-red-700 uppercase tracking-wider">
+                  Recarga Feita
+                </h1>
+
+                <Icon
+                  icon={"material-symbols:done"}
+                  className="text-red-700 text-6xl max-lg:text-3xl"
+                />
+              </div>
+
+              <p className="text-center text-body-14 text-background font-semibold">
+                Novo saldo de{" "}
+                <b>{defaultValue(mixeiroData?.data?.customName)}</b>:{" "}
+                <b>{mixeiroData?.data?.subscription.points}</b> pontos.
+                <br />
+                Já podes receber mais bisnos.
+              </p>
+              <button
+                type="button"
+                className="px-7 py-3 border-3 border-background text-background text-body-16 font-normal font-heading uppercase"
+                onClick={() => window.location.reload()}
+              >
+                Novo Bisno
+              </button>
+            </div>
+          </Activity>
+        </div>
       </form>
     </div>
   );
