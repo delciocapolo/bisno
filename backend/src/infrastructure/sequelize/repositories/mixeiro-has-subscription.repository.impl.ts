@@ -53,7 +53,7 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
       where: { mixeiroId: mixeiroId },
       order: [["createdAt", "DESC"]],
       // attributes: MIXEIRO_HAS_SUBSCRIPTION_ATTRIBUTES,
-      attributes: ["points", "activatedAt"],
+      attributes: ["id", "points", "activatedAt"],
     });
   }
 
@@ -78,10 +78,7 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
       return false;
     }
 
-    await subscription.update({
-      points: plan.points,
-      subscriptionId: plan.get("id"),
-    });
+    await subscription.update({ points: subscription.points + plan.points });
 
     return true;
   }
@@ -129,5 +126,43 @@ export class SequelizeMixeiroHasSubscriptionRepository implements MixeiroHasSubs
       subscriptionId: planId,
       activatedAt: new Date(),
     });
+  }
+
+  async upsert(planId: string, mixeiroId: string): Promise<boolean> {
+    const subscription = await this.getSubscriptionByMixeiroId(mixeiroId);
+
+    if (!isDefined(subscription)) {
+      await this.save(planId, mixeiroId);
+      return true;
+    }
+
+    if (!isDefined(subscription?.activatedAt)) {
+      sequelizeLogger.error(
+        { mixeiroId, planId },
+        "Mixeiro has not active subscription",
+      );
+      return false;
+    }
+
+    const plan = await Subscription.findByPk(planId);
+
+    if (!isDefined(plan)) {
+      sequelizeLogger.error(
+        { planId: subscription.subscriptionId },
+        "Plan does not exists",
+      );
+      return false;
+    }
+
+    await MixeiroHasSubscription.update(
+      {
+        activatedAt: new Date(),
+        subscriptionId: plan.id,
+        points: subscription.points + plan.points,
+      },
+      { where: { id: subscription.id } },
+    );
+
+    return true;
   }
 }

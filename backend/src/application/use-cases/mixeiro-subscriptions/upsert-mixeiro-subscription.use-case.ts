@@ -1,10 +1,9 @@
 import { sequelizeLogger } from "@src/infrastructure/sequelize/connection";
 import type { UseCaseAbstract } from "@src/shared/@types/use-case";
-import type { SequelizeMixeiroHasSubscriptionRepository } from "@src/infrastructure/sequelize/repositories/mixeiro-has-subscription.repository.impl";
-import type { MixeiroHasSubscription } from "@src/infrastructure/sequelize/models/mixeiro-has-subscription.model";
 import type { ICreateMixeiroHasSubscriptionPayload } from "@src/shared/events/mixeiro-has-subscription-events";
+import type { SequelizeMixeiroHasSubscriptionRepository } from "@src/infrastructure/sequelize/repositories/mixeiro-has-subscription.repository.impl";
 
-export class CreateMixeiroSubscriptionUseCase implements UseCaseAbstract<MixeiroHasSubscription | null> {
+export class UpsertMixeiroSubscriptionUseCase implements UseCaseAbstract<boolean> {
   constructor(
     private readonly repository: SequelizeMixeiroHasSubscriptionRepository,
   ) {}
@@ -12,11 +11,10 @@ export class CreateMixeiroSubscriptionUseCase implements UseCaseAbstract<Mixeiro
   async execute({
     planId,
     mixeiroId,
-  }: ICreateMixeiroHasSubscriptionPayload): Promise<MixeiroHasSubscription | null> {
+  }: ICreateMixeiroHasSubscriptionPayload): Promise<boolean> {
     try {
       // TODO: implementar o sistema da EMIS para pagamento express
-      const subscription = await this.repository.save(planId, mixeiroId);
-      return subscription;
+      return await this.repository.upsert(planId, mixeiroId);
     } catch (error) {
       if (error instanceof Error) {
         sequelizeLogger.error(
@@ -30,7 +28,7 @@ export class CreateMixeiroSubscriptionUseCase implements UseCaseAbstract<Mixeiro
         );
       }
 
-      return null;
+      return false;
     }
   }
 }

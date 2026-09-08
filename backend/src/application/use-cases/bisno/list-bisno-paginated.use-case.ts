@@ -22,7 +22,7 @@ export class ListBisnoPaginatedUseCase implements UseCaseAbstract<IListBisnoPagi
       return await pagination.paginate(filters, {
         where: {
           status: {
-            [Op.in]: ["pending", "matched"],
+            [Op.in]: ["pending", "exhausted"],
           },
         },
         attributes: ["id", "status", "createdAt"],

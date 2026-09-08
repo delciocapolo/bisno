@@ -19,4 +19,5 @@ export interface MixeiroHasSubscriptionRepository {
     planId: string,
     mixeiroId: string,
   ) => Promise<MixeiroHasSubscription | null>;
+  upsert: (planId: string, mixeiroId: string) => Promise<boolean>;
 }

@@ -1,14 +1,9 @@
-import type express from "express";
-import { isDefined } from "@src/shared/utils/index";
-import { serverLogger } from "../../../server";
-import {
-  createMixeiroSubscriptionUseCase,
-  getSubscriptionByMixeiroIdUseCase,
-  incrementSubscriptionPointUseCase,
-} from "@src/application/use-cases/composition";
-import type { IApiResponse } from "@src/shared/@types/api-response";
-import { schemaFormCreateMixeiroSubscription } from "@src/shared/schemas/form-create-mixeiro-subscription";
 import z from "zod";
+import { serverLogger } from "../../../server";
+import { upsertSubscriptionPointUseCase } from "@src/application/use-cases/composition";
+import { schemaFormCreateMixeiroSubscription } from "@src/shared/schemas/form-create-mixeiro-subscription";
+import type express from "express";
+import type { IApiResponse } from "@src/shared/@types/api-response";
 
 export const createMixeiroSubscriptionHandler = async (
   req: express.Request,
@@ -20,18 +15,10 @@ export const createMixeiroSubscriptionHandler = async (
     );
     serverLogger.info({ payload }, "Received mixeiro subscription data");
     const mixeiroHasSubscription =
-      await getSubscriptionByMixeiroIdUseCase.execute(payload.mixeiroId);
-
-    if (!isDefined(mixeiroHasSubscription)) {
-      await createMixeiroSubscriptionUseCase.execute(payload);
-    } else {
-      await incrementSubscriptionPointUseCase.execute(
-        mixeiroHasSubscription.id,
-      );
-    }
+      await upsertSubscriptionPointUseCase.execute(payload);
 
     return res.status(201).json({
-      data: "Data processed",
+      data: mixeiroHasSubscription,
       meta: { errors: null },
     } satisfies IApiResponse);
   } catch (error: any) {
@@ -46,14 +33,14 @@ export const createMixeiroSubscriptionHandler = async (
         error: issue.message,
       }));
       return res.status(422).json({
-        data: null,
+        data: false,
         meta: { errors: errors },
       } satisfies IApiResponse);
     }
 
     if (error instanceof Error) {
       return res.status(400).json({
-        data: null,
+        data: false,
         meta: {
           errors: [{ field: undefined, error: error.message }],
         },
@@ -61,7 +48,7 @@ export const createMixeiroSubscriptionHandler = async (
     }
 
     return res.status(500).json({
-      data: null,
+      data: false,
       meta: {
         errors: [
           {

@@ -39,6 +39,7 @@ import { GetSubscriptionByIdUseCase } from "./subscription/get-subscription-by-i
 import { SequelizeSubscriptionRepository } from "@src/infrastructure/sequelize/repositories/subscription.repository.impl.js";
 import { ListSubscriptionUseCase } from "./subscription/list-service.use-case.js";
 import { ListSubscriptionPaginatedUseCase } from "./subscription/list-services-paginated.use-case.js";
+import { UpsertMixeiroSubscriptionUseCase } from "./mixeiro-subscriptions/upsert-mixeiro-subscription.use-case.js";
 
 const bisnoRepository = new SequelizeBisnoRepository();
 const mixeiroRepository = new SequelizeMixeiroRepository();
@@ -84,6 +85,9 @@ const decrementSubscriptionPointUseCase = new DecrementSubscriptionPointUseCase(
   mixeiroHasSubscriptionRepository,
 );
 const incrementSubscriptionPointUseCase = new IncrementSubscriptionPointUseCase(
+  mixeiroHasSubscriptionRepository,
+);
+const upsertSubscriptionPointUseCase = new UpsertMixeiroSubscriptionUseCase(
   mixeiroHasSubscriptionRepository,
 );
 
@@ -168,4 +172,5 @@ export {
   getSubscriptionByIdUseCase,
   listSubscriptionUseCase,
   listSubscriptionPaginatedUseCase,
+  upsertSubscriptionPointUseCase,
 };
