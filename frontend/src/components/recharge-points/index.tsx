@@ -290,9 +290,9 @@ export default function RechargePointComponent() {
                   <input
                     id={field.name}
                     name={field.name}
-                    type="text"
+                    type="tel"
                     maxLength={9}
-                    inputMode="text"
+                    inputMode="numeric"
                     placeholder="912345678"
                     value={field.state.value || ""}
                     aria-label="Numero de telefone do mixeiro"
