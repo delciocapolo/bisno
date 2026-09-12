@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { cn } from "@src/lib/utils";
 import { Fragment } from "react";
 
@@ -10,7 +11,7 @@ const textMarquee = [
 
 export default function MarqueeBanner() {
   return (
-    <div className="w-full bg-[#181410] border-t-2 border-[#C0392B] py-3 overflow-hidden">
+    <div className="w-full bg-[#181410] border-t-2 border-primary-accent py-3 overflow-hidden">
       <style>{`
         @keyframes marqueeScroll {
           from { transform: translateX(0); }
@@ -32,7 +33,12 @@ export default function MarqueeBanner() {
           (text, index) => (
             <Fragment key={index}>
               <span>{text}</span>
-              <span className="text-[#c0910f] text-body-18">✳</span>
+              <span className="text-[#c0910f] text-body-18 flex-center">
+                <Icon
+                  icon={"material-symbols-light:asterisk"}
+                  className="text-2xl"
+                />
+              </span>
             </Fragment>
           ),
         )}
