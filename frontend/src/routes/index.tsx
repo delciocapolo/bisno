@@ -64,8 +64,8 @@ function Home() {
 
         <header
           className={cn(
-            "h-[calc(100vh-80px)] flex items-center max-lg:px-3",
-            "bg-primary border-b-2 border-b-[#C1121F]",
+            "h-[calc(100vh-80px)] max-lg:h-fit flex items-center max-lg:px-3 max-lg:py-10",
+            "bg-primary border-b-2 border-b-primary-accent",
           )}
         >
           <div className="container mx-auto space-y-7">
@@ -117,7 +117,7 @@ function Home() {
 
             <div className="">
               <p className="flex items-center gap-2 text-body-16 font-semibold text-background">
-                <b className="text-[#C1121F] text-headline-24">
+                <b className="text-primary-accent text-headline-64">
                   {bisnos?.length || 0}
                 </b>{" "}
                 {(bisnos?.length || 0) <= 1 ? "bisno activo" : "bisnos activos"}{" "}
@@ -158,7 +158,7 @@ function Home() {
                 >
                   <Icon
                     icon={service.icon}
-                    className="text-[#C1121F] text-2xl"
+                    className="text-primary-accent text-2xl"
                   />
                   <span className="font-sans text-body-14 font-extrabold text-background uppercase">
                     {service.name}

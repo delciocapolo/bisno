@@ -83,5 +83,5 @@ export const changeStep = (step: number) => {
 };
 
 export const resetBisnoStore = () => {
-  store.setState((_) => INITIAL_VALUES);
+  store.setState(() => INITIAL_VALUES);
 };
