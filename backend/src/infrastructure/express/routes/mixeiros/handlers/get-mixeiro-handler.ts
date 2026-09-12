@@ -33,6 +33,14 @@ export const getMixeiroHandler = async (
     });
     let mixeiro = null;
 
+    if (!isDefined(mixeiro_)) {
+      throw new Error("Mixeiro não encontrando");
+    }
+
+    if (!isDefined(mixeiro_?.verifiedAt)) {
+      throw new Error("Mixeiro não verificado");
+    }
+
     if (isDefined(mixeiro_)) {
       mixeiro = {
         ...mixeiro_.get({ plain: true }),

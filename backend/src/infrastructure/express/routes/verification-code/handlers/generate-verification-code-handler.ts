@@ -1,12 +1,14 @@
 import z from "zod";
+import { Op } from "sequelize";
 import type express from "express";
+import { isDefined } from "@src/shared/utils";
 import { serverLogger } from "@src/infrastructure/express/server";
 import { OBJECT_MOBILE_VALIDATOR } from "@src/shared/schemas/commons";
 import type { IApiResponse } from "@src/shared/@types/api-response";
-import { generateVerificationCodeUseCase } from "@src/application/use-cases/composition";
-import { Mixeiro } from "@src/infrastructure/sequelize/models/mixeiro.model";
-import { Op } from "sequelize";
-import { isDefined } from "@src/shared/utils";
+import {
+  generateVerificationCodeUseCase,
+  getMixeiroByUseCase,
+} from "@src/application/use-cases/composition";
 
 export const generateVerificationCodeHandler = async (
   req: express.Request,
@@ -19,14 +21,18 @@ export const generateVerificationCodeHandler = async (
 
     serverLogger.error({ payload }, "Verification code payload");
 
-    const mixeiro = await Mixeiro.findOne({
+    const mixeiro = await getMixeiroByUseCase.execute({
       where: {
-        mobile: { [Op.like]: `%${payload.mobile}%` },
+        mobile: { [Op.like]: `%${payload.mobile}%` } as any,
       },
     });
 
     if (!isDefined(mixeiro)) {
-      throw new Error("Mixeiro not found");
+      throw new Error("Mixeiro não encontrado");
+    }
+
+    if (!isDefined(mixeiro?.verifiedAt)) {
+      throw new Error("Mixeiro não verificado");
     }
 
     await generateVerificationCodeUseCase.execute(payload.mobile);
