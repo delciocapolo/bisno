@@ -136,7 +136,7 @@ services:
     build:
       context: ../lib/evolution-api
     platform: linux/amd64
-    image: delciocapolo/bisno-evolution-api:latest
+    image: delciocapolo/evolution-api:latest
     container_name: bisno_evolution_api
     restart: unless-stopped
     healthcheck:
@@ -156,6 +156,7 @@ services:
     env_file:
       - ../lib/evolution-api/.env
     environment:
+      - NODE_ENV=production
       - DATABASE_SCHEMA=${EVOLUTION_DATABASE_SCHEMA}
       - DATABASE_PROVIDER=${EVOLUTION_DATABASE_PROVIDER}
       - DATABASE_CONNECTION_URI=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${EVOLUTION_POSTGRES_DATABASE}?schema=${EVOLUTION_DATABASE_SCHEMA}
